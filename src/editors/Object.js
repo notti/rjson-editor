@@ -8,13 +8,13 @@ class Chevron extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {open: props.open};
+    this.state = { open: props.open };
   }
 
   handleHide = (e) => {
     e.preventDefault();
     this.setState((prevState) => {
-      let open=!prevState.open;
+      let open = !prevState.open;
       this.props.handleHide(open);
       return { open: open }
     })
@@ -39,7 +39,7 @@ class ObjectEditor extends Component {
 
     this.state = { open: !props.defaults.collapsed };
     this.value = props.value;
-    if(this.value === undefined) {
+    if (this.value === undefined) {
       this.value = {} //FIXME
       props.valueChange(props.id, this.value);
     }
@@ -54,7 +54,7 @@ class ObjectEditor extends Component {
   }
 
   handleHide = (open) => {
-    this.setState({open: open});
+    this.setState({ open: open });
   }
 
   valueChange = (key, newValue) => {
