@@ -1,0 +1,1 @@
+Try on rebuilding json-editor with react
