@@ -204,7 +204,7 @@
       "title": "version",
       "type": "string",
       "propertyOrder": 1,
-      "enum": ["v2.1"]
+      "const": "v2.1"
     },
     "reference": {
       "title": "reference",
