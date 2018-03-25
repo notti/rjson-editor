@@ -67,20 +67,30 @@ class ObjectEditor extends Component {
     }
     const properties = this.props.schema.properties;
 
-    const subEditors = Object.keys(properties).map((key) => {
+    const subEditors = Object.keys(properties)
+      .sort((a, b) => {
+        let i = properties[a].propertyOrder;
+        let j = properties[b].propertyOrder;
+        if (i === undefined)
+          i = 1000;
+        if (j === undefined)
+          j = 1000;
+        return i-j;
+      }).
+      map((key) => {
 
-      if(this.value[key] === undefined) { //FIXME
-        this.value[key] = undefined;
-      }
+        if (this.value[key] === undefined) { //FIXME
+          this.value[key] = undefined;
+        }
 
-      return (
-      <BaseEditor
-        defaults={this.props.defaults}
-        key={key} id={key}
-        schema={properties[key]}
-        value={this.value[key]} valueChange={this.valueChange}
-      />);
-    })
+        return (
+          <BaseEditor
+            defaults={this.props.defaults}
+            key={key} id={key}
+            schema={properties[key]}
+            value={this.value[key]} valueChange={this.valueChange}
+          />);
+      })
 
     return (
       <div className="objectBody mx-2 px-2 border border-top-0 rounded-bottom">
