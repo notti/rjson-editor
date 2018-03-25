@@ -39,6 +39,10 @@ class ObjectEditor extends Component {
 
     this.state = { open: !props.defaults.collapsed };
     this.value = props.value;
+    if(this.value === undefined) {
+      this.value = {} //FIXME
+      props.valueChange(props.id, this.value);
+    }
   }
 
   componentDidMount() {
@@ -55,22 +59,25 @@ class ObjectEditor extends Component {
 
   valueChange = (key, newValue) => {
     this.value[key] = newValue;
-    this.props.valueChange();
   }
 
   render() {
     if (!this.state.open) {
       return "";
     }
-    const properties = this.props.json.properties;
+    const properties = this.props.schema.properties;
 
     const subEditors = Object.keys(properties).map((key) => {
-      const object = properties[key];
+
+      if(this.value[key] === undefined) { //FIXME
+        this.value[key] = undefined;
+      }
+
       return (
       <BaseEditor
         defaults={this.props.defaults}
         key={key} id={key}
-        json={object}
+        schema={properties[key]}
         value={this.value[key]} valueChange={this.valueChange}
       />);
     })

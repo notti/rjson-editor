@@ -17,7 +17,7 @@ class BaseEditor extends Component {
   constructor(props) {
     super(props);
 
-    this.title = props.json.title || this.props.id;
+    this.title = props.schema.title || this.props.id;
     this.state = { chevron: null };
   }
 
@@ -26,14 +26,21 @@ class BaseEditor extends Component {
   }
 
   render() {
-    const Editor = toEditor(this.props.json) //FIXME: use current editor for multichoice
+    const Editor = toEditor(this.props.schema) //FIXME: use current editor for multichoice
+    if(Editor === undefined)
+      return (
+      <div className="form-group">
+        <label>{this.props.schema.type}</label>
+      </div>);
+
+    //FIXME: raw html in titles?
     return (
       <div className="form-group">
-        <label>{this.state.chevron}{this.title}</label>
+        <label>{this.state.chevron}<span dangerouslySetInnerHTML={{__html: this.title}} /></label>
         <Editor
           defaults={this.props.defaults}
           id={this.props.id}
-          json={this.props.json}
+          schema={this.props.schema}
           value={this.props.value} valueChange={this.props.valueChange}
           setChevron={this.setChevron}
         />
@@ -53,16 +60,15 @@ class JSONEditor extends Component {
   }
 
   valueChange = (key, newValue) => {
-    console.log(this.value)
-    //this.value = newValue
+    this.value = newValue
   }
 
   render() {
-    const json = this.props.json;
+    const schema = this.props.schema;
     return (
       <BaseEditor
         defaults={this.defaults}
-        json={json}
+        schema={schema}
         value={this.props.value} valueChange={this.valueChange}
       />
     );
