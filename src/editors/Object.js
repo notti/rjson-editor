@@ -86,7 +86,7 @@ class ObjectEditor extends Component {
           <BaseEditor
             defaults={this.props.defaults}
             key={key} id={key}
-            schema={properties[key]}
+            constraints={properties[key]}
             value={this.value[key]} valueChange={this.valueChange}
           />);
       })

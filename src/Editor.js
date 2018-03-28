@@ -7,9 +7,9 @@ class BaseEditor extends Component {
   constructor(props) {
     super(props);
 
-    this.title = props.schema.title || this.props.id;
+    this.title = props.constraints.title || this.props.id;
     this.state = { chevron: null };
-    this.editor = props.schema.getEditor();
+    this.editor = props.constraints.getEditor();
   }
 
   setChevron = (chevron) => {
@@ -60,7 +60,7 @@ class JSONEditor extends Component {
     return (
       <BaseEditor
         defaults={this.defaults}
-        schema={this.pseudoschema}
+        constraints={this.pseudoschema}
         value={this.props.value} valueChange={this.valueChange}
       />
     );
