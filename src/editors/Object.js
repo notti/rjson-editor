@@ -65,7 +65,7 @@ class ObjectEditor extends Component {
     if (!this.state.open) {
       return "";
     }
-    const properties = this.props.schema.properties;
+    const properties = this.props.constraints.properties;
 
     const subEditors = Object.keys(properties)
       .sort((a, b) => {

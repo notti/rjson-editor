@@ -1,17 +1,7 @@
 import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Editor.css';
-import ObjectEditor from './editors/Object.js';
-import StringEditor from './editors/String.js';
-
-const editorTypes = {
-  "object": ObjectEditor,
-  "string": StringEditor
-}
-
-function toEditor(schema) {
-  return editorTypes[schema.type];
-}
+import processSchema from './Schema.js';
 
 class BaseEditor extends Component {
   constructor(props) {
@@ -19,6 +9,7 @@ class BaseEditor extends Component {
 
     this.title = props.schema.title || this.props.id;
     this.state = { chevron: null };
+    this.editor = props.schema.getEditor();
   }
 
   setChevron = (chevron) => {
@@ -26,7 +17,7 @@ class BaseEditor extends Component {
   }
 
   render() {
-    const Editor = toEditor(this.props.schema) //FIXME: use current editor for multichoice
+    const Editor = this.editor.component();
     if(Editor === undefined)
       return (
       <div className="form-group">
@@ -40,7 +31,7 @@ class BaseEditor extends Component {
         <Editor
           defaults={this.props.defaults}
           id={this.props.id}
-          schema={this.props.schema}
+          constraints={this.editor.constraints}
           value={this.props.value} valueChange={this.props.valueChange}
           setChevron={this.setChevron}
         />
@@ -57,6 +48,8 @@ class JSONEditor extends Component {
     this.defaults = {
       collapsed: false
     }
+    this.schema = props.schema;
+    this.pseudoschema = processSchema(this.schema);
   }
 
   valueChange = (key, newValue) => {
@@ -64,11 +57,10 @@ class JSONEditor extends Component {
   }
 
   render() {
-    const schema = this.props.schema;
     return (
       <BaseEditor
         defaults={this.defaults}
-        schema={schema}
+        schema={this.pseudoschema}
         value={this.props.value} valueChange={this.valueChange}
       />
     );
