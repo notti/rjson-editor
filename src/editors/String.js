@@ -6,10 +6,12 @@ class StringEditor extends Component {
 
         let value = props.value;
 
+        if(props.constraints.const !== undefined && value !== props.constraints.const) {
+            value = props.constraints.const;
+            props.valueChange(props.id, value);
+        }
         if(value === undefined) {
-            if(props.constraints.const !== undefined)
-                value = props.constraints.const;
-            else if(props.constraints.default !== undefined)
+            if(props.constraints.default !== undefined)
                 value = props.constraints.default;
             else
                 value = "";
@@ -39,7 +41,7 @@ class StringEditor extends Component {
         }
         return (
             <React.Fragment>
-                <input value={this.state.value} onChange={this.valueChange} className={className}></input>
+                <input value={this.state.value} onChange={this.valueChange} className={className} readOnly={constraints.const !== undefined}></input>
                 {constraints.description && <small className="form-text text-muted">{constraints.description}</small>}
                 {valid !== undefined && <div className="invalid-feedback">{valid}</div>}
             </React.Fragment>
