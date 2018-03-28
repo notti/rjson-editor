@@ -81,11 +81,14 @@ class Editor {
 }
 
 class MultiEditor {
-    constructor(editors) {
-
+    constructor(schema, editors, fullschema) {
+        this.title = schema.title || schema.type;
+        this.description = schema.description;
+        this.editors = editors;
     }
 
     component() {
+        return this.editors;
     }
 }
 
