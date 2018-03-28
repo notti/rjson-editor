@@ -194,9 +194,7 @@
       "title": "missing",
       "type": "string",
       "minLength": 1,
-      "enum": [
-        "missing"
-      ]
+      "const": "missing"
     }
   },
   "properties": {
