@@ -6,15 +6,19 @@ class InputEditor extends Component {
 
         let value = props.value;
 
-        if(props.constraints.const !== undefined && value !== props.constraints.const) {
+        if (props.constraints.const !== undefined && value !== props.constraints.const) {
             value = props.constraints.const;
             props.valueChange(props.id, value);
         }
-        if(value === undefined) {
-            if(props.constraints.default !== undefined)
+        if (value === undefined) {
+            if (props.constraints.default !== undefined)
                 value = props.constraints.default;
-            else
-                value = "";
+            else {
+                if (props.constraints.type === "string")
+                    value = "";
+                else
+                    value = 0;
+            }
             props.valueChange(props.id, value);
         }
 
@@ -25,10 +29,41 @@ class InputEditor extends Component {
     }
 
     valueChange = (e) => {
-        this.props.valueChange(this.props.id, e.target.value);
+        let value = e.target.value;
+        let textValue = value;
+        switch (this.props.constraints.type) {
+            case "integer":
+                if (value === "") {
+                    textValue = "";
+                    value = 0;
+                } else if (value === "-") {
+                    textValue = "-";
+                    value = 0;
+                } else if (/^-?[0-9]+$/.test(value)) {
+                    textValue = value = Number(value);
+                } else {
+                    return;
+                }
+                break;
+            case "number":
+                if (value === "") {
+                    textValue = "";
+                    value = 0;
+                } else if (value === "-") {
+                    textValue = "-";
+                    value = 0;
+                } else {
+                    textValue = value = Number(value);
+                    if(!Number.isFinite(value))
+                        return;
+                }
+                break;
+            // no default
+        }
+        this.props.valueChange(this.props.id, value);
         this.setState({
-            value: e.target.value,
-            valid: this.props.constraints.validate(e.target.value)
+            value: textValue,
+            valid: this.props.constraints.validate(value)
         });
     }
 

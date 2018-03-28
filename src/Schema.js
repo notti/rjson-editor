@@ -4,11 +4,14 @@ import InputEditor from './editors/Input.js';
 
 const editorTypes = {
     "object": ObjectEditor,
-    "string": InputEditor
+    "string": InputEditor,
+    "number": InputEditor,
+    "integer": InputEditor
 }
 
 class Constraints {
     constructor(type, constraints, fullschema) {
+        this.type = type;
         this.const = constraints.const
         this.enum = constraints.enum
         switch (type) {
