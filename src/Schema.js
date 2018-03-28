@@ -47,9 +47,10 @@ class Constraints {
                     this.propertyNames = new Constraints("string", constraints.propertyNames);
                 }
                 break;
+            // no default
         }
         this.constraints = []
-        if(type == "integer") type = "number";
+        if(type === "integer") type = "number";
         const c = constraintTypes[type];
         const k = Object.keys(c);
         for (let i = 0; i < k.length; i++)
@@ -207,7 +208,7 @@ function mergeTypeConstraints(a, b) {
         let alist = [].concat(a);
         if (b.type !== undefined) {
             let tmp = [].concat(b).filter(val => val.indexOf(alist) >= 0);
-            if (tmp.length == 0) {
+            if (tmp.length === 0) {
                 console.error("unsatisfiable schema; can't match types '" + a.type + "' and '" + b.type + "'")
                 ret.type = a.type;
             } else if (tmp.length > 1) {
@@ -266,7 +267,7 @@ function mergeConstraints(a, b) {
         }
     }
     if (a.const !== undefined && b.const !== undefined) {
-        if (a.const != b.const) {
+        if (a.const !== b.const) {
             console.error("can't merge schemas; non equal consts")
         }
         ret.const = a.const;
@@ -315,7 +316,7 @@ function mergeConstraints(a, b) {
         }
     }
     if (a.format !== undefined && b.format !== undefined) {
-        if (a.format != b.format) {
+        if (a.format !== b.format) {
             console.error("mismatching format during merge!")
         }
         ret.format = a.format;
@@ -326,7 +327,7 @@ function mergeConstraints(a, b) {
         if (Array.isArray(a.items)) {
             ret.items = [];
             if (Array.isArray(b.items)) {
-                if (a.items.length != b.items.length) {
+                if (a.items.length !== b.items.length) {
                     console.error("items must be same length!")
                     ret.items = a.items;
                 } else {
@@ -385,7 +386,7 @@ function mergeConstraints(a, b) {
         ret.required = a.required || b.required;
     }
     if (a.uniqueItems !== undefined && b.uniqueItems !== undefined) {
-        if (a.uniqueItems != b.uniqueItems)
+        if (a.uniqueItems !== b.uniqueItems)
             console.error("Can't merge uniqueItems")
         ret.uniqueItems = a.uniqueItems;
     } else if (a.uniqueItems !== undefined) {
@@ -412,7 +413,7 @@ class PseudoSchema {
 
     resolveRef(ref) {
         let refs = ref.split('/')
-        if (refs[0] != '#') {
+        if (refs[0] !== '#') {
             console.error("Only internal refs implemented.");
             return {};
         }
@@ -445,18 +446,18 @@ class PseudoSchema {
         }
         delete tmp.title;
         delete tmp.description;
-        if (this.schema.title != undefined) {
+        if (this.schema.title !== undefined) {
             tmp.title = this.schema.title;
         }
-        if (this.schema.description != undefined) {
+        if (this.schema.description !== undefined) {
             tmp.description = this.schema.description;
         }
         let oneanyOf = (this.schema.oneOf || []).concat(this.schema.anyOf || []);
-        if (oneanyOf.length == 0) {
+        if (oneanyOf.length === 0) {
             if (!Array.isArray(tmp.type)) {
                 return new Editor(tmp, this);
             } else {
-                if (tmp.type.length == 1) {
+                if (tmp.type.length === 1) {
                     tmp.type = tmp.type[0];
                     return new Editor(tmp, this)
                 }
