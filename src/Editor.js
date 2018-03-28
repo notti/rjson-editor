@@ -21,7 +21,7 @@ class BaseEditor extends Component {
     if(Editor === undefined)
       return (
       <div className="form-group">
-        <label>{this.props.schema.type}</label>
+        <label>{this.editor.type}</label>
       </div>);
 
     //FIXME: raw html in titles?
