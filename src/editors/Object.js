@@ -28,7 +28,7 @@ class Chevron extends Component {
       );
 
     return (
-      <a href="#collapse" onClick={this.handleHide}>{button}</a>
+      <a href="#collapse" className="mr-2" onClick={this.handleHide}>{button}</a>
     );
   }
 }
