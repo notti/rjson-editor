@@ -15,13 +15,13 @@ class Constraints {
             case "array":
                 if (constraints.items !== undefined) {
                     if (Array.isArray(constraints.items)) {
-                        this.items = constraints.items.map(val => (new PseudoSchema(val, fullschema)));
+                        this.items = constraints.items.map(val => (new PseudoSchema(val, fullschema.fullschema)));
                     } else {
-                        this.items = new PseudoSchema(constraints.items, fullschema);
+                        this.items = new PseudoSchema(constraints.items, fullschema.fullschema);
                     }
                 }
                 if (constraints.additionalItems !== undefined)
-                    this.additionalItems = new PseudoSchema(constraints.additionalItems, fullschema);
+                    this.additionalItems = new PseudoSchema(constraints.additionalItems, fullschema.fullschema);
                 break;
             case "object":
                 this.required = constraints.required;
@@ -29,22 +29,22 @@ class Constraints {
                     this.properties = {}
                     let keys = Object.keys(constraints.properties);
                     for (let i = 0; i < keys.length; i++) {
-                        this.properties[keys[i]] = new PseudoSchema(constraints.properties[keys[i]], fullschema);
+                        this.properties[keys[i]] = new PseudoSchema(constraints.properties[keys[i]], fullschema.fullschema);
                     }
                 }
                 if (constraints.patternProperties !== undefined) {
                     this.patternProperties = {}
                     let keys = Object.keys(constraints.patternProperties);
                     for (let i = 0; i < keys.length; i++) {
-                        this.patternProperties[keys[i]] = new PseudoSchema(constraints.patternProperties[keys[i]], fullschema);
+                        this.patternProperties[keys[i]] = new PseudoSchema(constraints.patternProperties[keys[i]], fullschema.fullschema);
                     }
                 }
                 if (constraints.additionalProperties !== undefined) {
-                    this.additionalProperties = new PseudoSchema(constraints.additionalProperties, fullschema);
+                    this.additionalProperties = new PseudoSchema(constraints.additionalProperties, fullschema.fullschema);
                 }
                 if (constraints.propertyNames !== undefined) {
                     fullschema.replaceRef(constraints.propertyNames);
-                    this.propertyNames = new Constraints("string", constraints.propertyNames);
+                    this.propertyNames = new Constraints("string", constraints.propertyNames, fullschema);
                 }
                 break;
             // no default
@@ -205,9 +205,9 @@ const constraintTypes = {
 function mergeTypeConstraints(a, b) {
     let ret = mergeConstraints(a, b);
     if (a.type !== undefined) {
-        let alist = [].concat(a);
+        let alist = [].concat(a.type);
         if (b.type !== undefined) {
-            let tmp = [].concat(b).filter(val => val.indexOf(alist) >= 0);
+            let tmp = [].concat(b.type).filter(val => alist.indexOf(val) >= 0);
             if (tmp.length === 0) {
                 console.error("unsatisfiable schema; can't match types '" + a.type + "' and '" + b.type + "'")
                 ret.type = a.type;
@@ -226,8 +226,14 @@ function mergeTypeConstraints(a, b) {
             ret.type = b.type;
         }
     }
+    if (a.title !== undefined) {
+        ret.title = a.title;
+    }
     if (b.title !== undefined) {
         ret.title = b.title;
+    }
+    if (a.description !== undefined) {
+        ret.description = a.description;
     }
     if (b.description !== undefined) {
         ret.description = b.description;
@@ -441,6 +447,7 @@ class PseudoSchema {
         let tmp = Object.assign({}, this.schema);
         if (this.schema.allOf !== undefined) {
             for (let i = 0; i < this.schema.allOf.length; i++) {
+                this.replaceRef(this.schema.allOf[i])
                 tmp = mergeTypeConstraints(tmp, this.schema.allOf[i])
             }
         }
@@ -474,6 +481,7 @@ class PseudoSchema {
         }
         let ret = [];
         for (let i = 0; i < oneanyOf.length; i++) {
+            this.replaceRef(oneanyOf[i]);
             let ed = mergeTypeConstraints(tmp, oneanyOf[i]);
             if (Array.isArray(ed.type)) {
                 console.error("Can't nest multieditors")
