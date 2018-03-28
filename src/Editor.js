@@ -9,6 +9,7 @@ class BaseEditor extends Component {
 
     this.title = props.constraints.title || this.props.id;
     this.editor = props.constraints.getEditor();
+    this.value = props.value;
     this.state = { chevron: null, editor: 0 }; //FIXME: match default editor with value
   }
 
@@ -18,6 +19,11 @@ class BaseEditor extends Component {
 
   handleEditorChange = (e) => {
     this.setState({editor: e.target.value});
+  }
+
+  valueChange = (key, newValue) => {
+    this.value = newValue
+    this.props.valueChange(key, newValue);
   }
 
   render() {
@@ -49,7 +55,7 @@ class BaseEditor extends Component {
           defaults={this.props.defaults}
           id={this.props.id}
           constraints={constraints}
-          value={this.props.value} valueChange={this.props.valueChange}
+          value={this.value} valueChange={this.valueChange}
           setChevron={this.setChevron}
         />
       </div>
