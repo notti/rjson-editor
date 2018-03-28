@@ -16,6 +16,10 @@ class BaseEditor extends Component {
     this.setState({ chevron: chevron });
   }
 
+  handleEditorChange = (e) => {
+    this.setState({editor: e.target.value});
+  }
+
   render() {
     let Editor = this.editor.component();
     let constraints = this.editor.constraints;
