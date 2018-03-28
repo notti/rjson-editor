@@ -45,6 +45,7 @@ class BaseEditor extends Component {
       <div className="form-group">
         <label className="form-inline">{this.state.chevron}<span dangerouslySetInnerHTML={{__html: this.title}} />{editors}</label>
         <Editor
+          key={this.state.editor}
           defaults={this.props.defaults}
           id={this.props.id}
           constraints={constraints}
