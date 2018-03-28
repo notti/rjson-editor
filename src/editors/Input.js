@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-class StringEditor extends Component {
+class InputEditor extends Component {
     constructor(props) {
         super(props);
 
@@ -49,4 +49,4 @@ class StringEditor extends Component {
     }
 }
 
-export default StringEditor;
+export default InputEditor;

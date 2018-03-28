@@ -1,10 +1,10 @@
 import ObjectEditor from './editors/Object.js';
-import StringEditor from './editors/String.js';
+import InputEditor from './editors/Input.js';
 
 
 const editorTypes = {
     "object": ObjectEditor,
-    "string": StringEditor
+    "string": InputEditor
 }
 
 class Constraints {
