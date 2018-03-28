@@ -413,6 +413,7 @@ function mergeConstraints(a, b) {
 class PseudoSchema {
     constructor(schema, fullschema) {
         this.schema = schema;
+        this.title = schema.title;
         this.fullschema = fullschema;
         if (fullschema === undefined) {
             this.fullschema = schema;
