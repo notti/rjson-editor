@@ -52,8 +52,13 @@ class Constraints {
                 break;
             // no default
         }
-        this.constraints = []
-        if(type === "integer") type = "number";
+        this.constraints = [];
+        if (this.enum !== undefined)
+            this.constraints.push(val => {
+                if (this.enum.indexOf(val) === -1)
+                    return "Must be one of " + this.enum.join(', ');
+            });
+        if (type === "integer") type = "number";
         const c = constraintTypes[type];
         const k = Object.keys(c);
         for (let i = 0; i < k.length; i++)

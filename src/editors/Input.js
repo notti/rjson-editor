@@ -54,7 +54,7 @@ class InputEditor extends Component {
                     value = 0;
                 } else {
                     textValue = value = Number(value);
-                    if(!Number.isFinite(value))
+                    if (!Number.isFinite(value))
                         return;
                 }
                 break;
@@ -70,13 +70,19 @@ class InputEditor extends Component {
     render() {
         const constraints = this.props.constraints;
         const valid = this.state.valid;
-        let className = 'form-control';
+        let className = (constraints.enum !== undefined ? 'custom-select' : 'form-control');
         if (valid !== undefined) {
             className += ' is-invalid';
         }
+        const control = (constraints.enum !== undefined ?
+            <select value={this.state.value} className={className} onChange={this.valueChange}>
+                {[""].concat(constraints.enum).map((val) => (<option key={val} value={val}>{val}</option>))}
+            </select> :
+            <input value={this.state.value} onChange={this.valueChange} className={className} readOnly={constraints.const !== undefined}></input>
+            );
         return (
             <React.Fragment>
-                <input value={this.state.value} onChange={this.valueChange} className={className} readOnly={constraints.const !== undefined}></input>
+                {control}
                 {constraints.description && <small className="form-text text-muted">{constraints.description}</small>}
                 {valid !== undefined && <div className="invalid-feedback">{valid}</div>}
             </React.Fragment>
