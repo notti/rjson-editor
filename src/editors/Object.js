@@ -46,11 +46,11 @@ class ObjectEditor extends Component {
   }
 
   componentDidMount() {
-    this.props.setChevron(<Chevron handleHide={this.handleHide} open={this.state.open} />);
+    this.props.addPrecontrol("chevron", -1000, <Chevron key="chevron" handleHide={this.handleHide} open={this.state.open} />);
   }
 
   componentWillUnmount() {
-    this.props.setChevron(null);
+    this.props.delPrecontrol("chevron");
   }
 
   handleHide = (open) => {

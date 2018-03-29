@@ -10,11 +10,23 @@ class BaseEditor extends Component {
     this.title = props.constraints.title || this.props.id;
     this.editor = props.constraints.getEditor();
     this.value = props.value;
-    this.state = { chevron: null, editor: 0 }; //FIXME: match default editor with value
+    this.state = { editor: 0, precontrol: {} }; //FIXME: match default editor with value
   }
 
-  setChevron = (chevron) => {
-    this.setState({ chevron: chevron });
+  addPrecontrol = (id, order, control) => {
+    this.setState((prevState) => {
+      let precontrol = { ...prevState.precontrol };
+      precontrol[id] = { order: order, control: control };
+      return { precontrol: precontrol };
+    });
+  }
+
+  delPrecontrol = (id) => {
+    this.setState((prevState) => {
+      let precontrol = { ...prevState.precontrol };
+      delete precontrol[id];
+      return { precontrol: precontrol };
+    });
   }
 
   handleEditorChange = (e) => {
@@ -27,6 +39,7 @@ class BaseEditor extends Component {
   }
 
   render() {
+    const precontrol = Object.values(this.state.precontrol).sort((a, b) => (a.order - b.order)).map(val => (val.control));
     let Editor = this.editor.component();
     let constraints = this.editor.constraints;
     let editors = "";
@@ -49,14 +62,14 @@ class BaseEditor extends Component {
     //FIXME: raw html in titles?
     return (
       <div className="form-group">
-        <label className="form-inline">{this.state.chevron}<span dangerouslySetInnerHTML={{__html: this.title}} />{editors}</label>
+        <label className="form-inline">{precontrol}<span dangerouslySetInnerHTML={{ __html: this.title }} />{editors}</label>
         <Editor
           key={this.state.editor}
           defaults={this.props.defaults}
           id={this.props.id}
           constraints={constraints}
           value={this.value} valueChange={this.valueChange}
-          setChevron={this.setChevron}
+          addPrecontrol={this.addPrecontrol} delPrecontrol={this.delPrecontrol}
         />
       </div>
     );
