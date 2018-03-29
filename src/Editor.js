@@ -10,7 +10,7 @@ class BaseEditor extends Component {
     this.title = props.constraints.title || this.props.id;
     this.editor = props.constraints.getEditor();
     this.value = props.value;
-    this.state = { editor: 0, precontrol: {} }; //FIXME: match default editor with value
+    this.state = { editor: 0, precontrol: {}, postcontrol: {} }; //FIXME: match default editor with value
   }
 
   addPrecontrol = (id, order, control) => {
@@ -29,6 +29,22 @@ class BaseEditor extends Component {
     });
   }
 
+  addPostcontrol = (id, order, control) => {
+    this.setState((prevState) => {
+      let postcontrol = { ...prevState.postcontrol };
+      postcontrol[id] = { order: order, control: control };
+      return { postcontrol: postcontrol };
+    });
+  }
+
+  delPostcontrol = (id) => {
+    this.setState((prevState) => {
+      let postcontrol = { ...prevState.postcontrol };
+      delete postcontrol[id];
+      return { postcontrol: postcontrol };
+    });
+  }
+
   handleEditorChange = (e) => {
     this.setState({ editor: e.target.value });
   }
@@ -40,6 +56,7 @@ class BaseEditor extends Component {
 
   render() {
     const precontrol = Object.values(this.state.precontrol).sort((a, b) => (a.order - b.order)).map(val => (val.control));
+    const postcontrol = Object.values(this.state.postcontrol).sort((a, b) => (a.order - b.order)).map(val => (val.control));
     let Editor = this.editor.component();
     let constraints = this.editor.constraints;
     let editors = "";
@@ -62,7 +79,7 @@ class BaseEditor extends Component {
     //FIXME: raw html in titles?
     return (
       <div className="form-group">
-        <label className="form-inline">{precontrol}<span dangerouslySetInnerHTML={{ __html: this.title }} />{editors}</label>
+        <label className="form-inline">{precontrol}<span dangerouslySetInnerHTML={{ __html: this.title }} />{editors}{postcontrol}</label>
         <Editor
           key={this.state.editor}
           defaults={this.props.defaults}
@@ -70,6 +87,7 @@ class BaseEditor extends Component {
           constraints={constraints}
           value={this.value} valueChange={this.valueChange}
           addPrecontrol={this.addPrecontrol} delPrecontrol={this.delPrecontrol}
+          addPostcontrol={this.addPostcontrol} delPostcontrol={this.delPostcontrol}
         />
       </div>
     );
