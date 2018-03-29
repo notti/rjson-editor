@@ -30,7 +30,7 @@ class BaseEditor extends Component {
   }
 
   handleEditorChange = (e) => {
-    this.setState({editor: e.target.value});
+    this.setState({ editor: e.target.value });
   }
 
   valueChange = (key, newValue) => {
@@ -43,13 +43,13 @@ class BaseEditor extends Component {
     let Editor = this.editor.component();
     let constraints = this.editor.constraints;
     let editors = "";
-    if(Editor === undefined)
+    if (Editor === undefined)
       return (
-      <div className="form-group">
-        <label>{this.editor.type}</label>
-      </div>);
+        <div className="form-group">
+          <label>{this.editor.type}</label>
+        </div>);
 
-    if(Array.isArray(Editor)) {
+    if (Array.isArray(Editor)) {
       editors = (
         <select value={this.state.editor} className="custom-select custom-select-sm mx-2 editor-chooser" onChange={this.handleEditorChange}>
           {Editor.map((editor, i) => (<option key={i} value={i}>{editor.title}</option>))}

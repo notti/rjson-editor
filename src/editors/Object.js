@@ -75,7 +75,7 @@ class ObjectEditor extends Component {
           i = 1000;
         if (j === undefined)
           j = 1000;
-        return i-j;
+        return i - j;
       }).map((key) => {
 
         if (this.value[key] === undefined) { //FIXME

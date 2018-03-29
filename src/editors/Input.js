@@ -79,7 +79,7 @@ class InputEditor extends Component {
                 {[""].concat(constraints.enum).map((val) => (<option key={val} value={val}>{val}</option>))}
             </select> :
             <input value={this.state.value} onChange={this.valueChange} className={className} readOnly={constraints.const !== undefined}></input>
-            );
+        );
         return (
             <React.Fragment>
                 {control}
