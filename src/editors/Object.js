@@ -141,9 +141,18 @@ class ObjectEditor extends Component {
     this.hasOptional =
       props.constraints.patternProperties !== undefined ||
       (props.constraints.additionalProperties !== undefined && props.constraints.additionalProperties !== false) ||
-      Object.keys(props.constraints.properties||{}).filter(item => (required.indexOf(item) < 0)).length !== 0;
+      Object.keys(props.constraints.properties || {}).filter(item => (required.indexOf(item) < 0)).length !== 0;
     if (this.value === undefined) {
-      this.value = {} //FIXME
+      if (props.constraints.default !== undefined) {
+        this.value = JSON.parse(JSON.stringify(props.constraints.default));
+      } else {
+        this.value = {}
+        if (props.constraints.required !== undefined) {
+          for (let property of props.constraints.required) {
+            this.value[property] = undefined;
+          }
+        }
+      }
       props.valueChange(props.id, this.value);
     }
   }
@@ -159,16 +168,18 @@ class ObjectEditor extends Component {
   }
 
   addProperty = (id) => {
-    console.log("add " + id);
+    this.value[id] = undefined;
+    this.forceUpdate();
   }
 
   delProperty = (id) => {
-    console.log("del " + id)
+    delete this.value[id];
+    this.forceUpdate();
   }
 
   componentDidMount() {
     this.props.addPrecontrol("chevron", -1000, <Chevron key="objectChevron" handleHide={this.handleHide} open={this.state.open} />);
-    if(this.hasOptional)
+    if (this.hasOptional)
       this.props.addPostcontrol("properties", -1000, <PropertyButton key="objectProperty" getProperties={this.getProperties} addProperty={this.addProperty} delProperty={this.delProperty} />);
   }
 
@@ -191,7 +202,7 @@ class ObjectEditor extends Component {
     }
     const properties = this.props.constraints.properties;
 
-    const subEditors = Object.keys(properties)
+    const subEditors = Object.keys(this.value)
       .sort((a, b) => {
         let i = properties[a].propertyOrder;
         let j = properties[b].propertyOrder;
@@ -201,16 +212,11 @@ class ObjectEditor extends Component {
           j = 1000;
         return i - j;
       }).map((key) => {
-
-        if (this.value[key] === undefined) { //FIXME
-          this.value[key] = undefined;
-        }
-
         return (
           <BaseEditor
             defaults={this.props.defaults}
             key={key} id={key}
-            constraints={properties[key]}
+            constraints={properties[key]} //FIXME: handle additionalProperties and patternProperties
             value={this.value[key]} valueChange={this.valueChange}
           />);
       })
