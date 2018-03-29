@@ -427,7 +427,7 @@ class PseudoSchema {
         if (fullschema === undefined) {
             this.fullschema = schema;
         }
-        this.editor = null
+        this.propertyOrder = schema.propertyOrder;
     }
 
     resolveRef(ref) {
