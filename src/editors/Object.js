@@ -137,6 +137,11 @@ class ObjectEditor extends Component {
 
     this.state = { open: !props.defaults.collapsed };
     this.value = props.value;
+    const required = props.constraints.required || [];
+    this.hasOptional =
+      props.constraints.patternProperties !== undefined ||
+      (props.constraints.additionalProperties !== undefined && props.constraints.additionalProperties !== false) ||
+      Object.keys(props.constraints.properties||{}).filter(item => (required.indexOf(item) < 0)).length !== 0;
     if (this.value === undefined) {
       this.value = {} //FIXME
       props.valueChange(props.id, this.value);
@@ -163,7 +168,8 @@ class ObjectEditor extends Component {
 
   componentDidMount() {
     this.props.addPrecontrol("chevron", -1000, <Chevron key="objectChevron" handleHide={this.handleHide} open={this.state.open} />);
-    this.props.addPostcontrol("properties", -1000, <PropertyButton key="objectProperty" getProperties={this.getProperties} addProperty={this.addProperty} delProperty={this.delProperty} />);
+    if(this.hasOptional)
+      this.props.addPostcontrol("properties", -1000, <PropertyButton key="objectProperty" getProperties={this.getProperties} addProperty={this.addProperty} delProperty={this.delProperty} />);
   }
 
   componentWillUnmount() {

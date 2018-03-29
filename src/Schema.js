@@ -44,7 +44,10 @@ class Constraints {
                     }
                 }
                 if (constraints.additionalProperties !== undefined) {
-                    this.additionalProperties = new PseudoSchema(constraints.additionalProperties, fullschema.fullschema);
+                    if(constraints.additionalProperties === false)
+                        this.additionalProperties = false
+                    else
+                        this.additionalProperties = new PseudoSchema(constraints.additionalProperties, fullschema.fullschema);
                 }
                 if (constraints.propertyNames !== undefined) {
                     fullschema.replaceRef(constraints.propertyNames);
