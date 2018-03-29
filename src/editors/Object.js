@@ -34,6 +34,11 @@ class PropertyEditor extends Component {
 }
 
 class PropertyDialog extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = { new: "", invalid: undefined };
+  }
   componentDidMount() {
     document.addEventListener('mousedown', this.handleClickOutside);
   }
@@ -52,17 +57,70 @@ class PropertyDialog extends Component {
     }
   }
 
+  handleChange = (e) => {
+    const constraints = this.props.constraints;
+    const value = e.target.value;
+    let invalid = undefined;
+    if (constraints.propertyNames !== undefined)
+      invalid = constraints.propertyNames.validate(value);
+    if (invalid === undefined &&
+      constraints.additionalProperties !== undefined && constraints.additionalProperties !== false &&
+      constraints.patternProperties !== undefined) {
+      let found = false;
+      for (let pattern of Object.keys(constraints.patternProperties)) {
+        if (RegExp(pattern).test(value)) {
+          found = true;
+          break;
+        }
+      }
+      if (!found)
+        invalid = "Must match one of " + Object.keys(constraints.patternProperties).join(", ");
+    }
+    this.setState({ new: e.target.value, invalid: invalid });
+  }
+
+  handleKeypress = (e) => {
+    if (e.key === 'Enter')
+      this.handleAdd();
+  }
+
+  handleAdd = () => {
+    this.setState((prevState) => {
+      if (prevState.new === "" || prevState.invalid !== undefined)
+        return;
+      this.props.addProperty(prevState.new);
+      return { new: "", invalid: undefined }
+    });
+  }
+
   render() {
-    const properties = this.props.properties.map(item => (<PropertyEditor key={item.id} item={item} addProperty={this.props.addProperty} delProperty={this.props.delProperty} />));
+    const properties = this.props.getProperties().map(item => (<PropertyEditor key={item.id} item={item} addProperty={this.props.addProperty} delProperty={this.props.delProperty} />));
+    const invalid = this.state.invalid;
+    let textClass = "form-control";
+    if (invalid !== undefined)
+      textClass += " is-invalid";
+    let buttonClass = "btn";
+    if (invalid === undefined)
+      buttonClass += " btn-outline-secondary";
+    else
+      buttonClass += " btn-outline-danger";
     return (
       <div className="modal-dialog" ref={this.setWrapperRef}>
         <div className="modal-content">
           <div className="modal-body">
             {properties}
           </div>
-          <div className="modal-footer">
-            More Stuff
-          </div>
+          {this.props.hasCustom &&
+            <div className="modal-footer">
+              <div className="input-group">
+                <input type="text" className={textClass} placeholder="Property name" value={this.state.new} onChange={this.handleChange} onKeyPress={this.handleKeypress} />
+                <div className="input-group-append">
+                  <button className={buttonClass} type="button" onClick={this.handleAdd} >Add</button>
+                </div>
+              </div>
+              {invalid !== undefined && <div className="invalid-feedback">{invalid}</div>}
+            </div>
+          }
         </div>
       </div>
     );
@@ -96,7 +154,14 @@ class PropertyButton extends Component {
     return (
       <div className="mx-2 propertyContainer">
         <button type="button" className={classes} onClick={this.handleOpen} ref={this.setWrapperRef}>Properties</button>
-        {this.state.open && <PropertyDialog close={this.close} button={this.wrapperRef} properties={this.props.getProperties()} addProperty={this.props.addProperty} delProperty={this.props.delProperty} />}
+        {this.state.open && <PropertyDialog
+          close={this.close}
+          button={this.wrapperRef}
+          getProperties={this.props.getProperties}
+          addProperty={this.props.addProperty} delProperty={this.props.delProperty}
+          hasCustom={this.props.hasCustom}
+          constraints={this.props.constraints}
+        />}
       </div>
     );
   }
@@ -138,9 +203,9 @@ class ObjectEditor extends Component {
     this.state = { open: !props.defaults.collapsed };
     this.value = props.value;
     const required = props.constraints.required || [];
-    this.hasOptional =
-      props.constraints.patternProperties !== undefined ||
-      (props.constraints.additionalProperties !== undefined && props.constraints.additionalProperties !== false) ||
+    this.hasCustom = props.constraints.patternProperties !== undefined ||
+      (props.constraints.additionalProperties !== undefined && props.constraints.additionalProperties !== false)
+    this.hasOptional = this.hasCustom ||
       Object.keys(props.constraints.properties || {}).filter(item => (required.indexOf(item) < 0)).length !== 0;
     if (this.value === undefined) {
       if (props.constraints.default !== undefined) {
@@ -180,7 +245,14 @@ class ObjectEditor extends Component {
   componentDidMount() {
     this.props.addPrecontrol("chevron", -1000, <Chevron key="objectChevron" handleHide={this.handleHide} open={this.state.open} />);
     if (this.hasOptional)
-      this.props.addPostcontrol("properties", -1000, <PropertyButton key="objectProperty" getProperties={this.getProperties} addProperty={this.addProperty} delProperty={this.delProperty} />);
+      this.props.addPostcontrol("properties", -1000, (
+        <PropertyButton
+          key="objectProperty"
+          getProperties={this.getProperties}
+          addProperty={this.addProperty} delProperty={this.delProperty}
+          hasCustom={this.hasCustom}
+          constraints={this.props.constraints}
+        />));
   }
 
   componentWillUnmount() {
@@ -196,16 +268,29 @@ class ObjectEditor extends Component {
     this.value[key] = newValue;
   }
 
+  propertyConstraint = (property) => {
+    const constraints = this.props.constraints;
+    if (constraints.properties !== undefined && constraints.properties[property] !== undefined)
+      return constraints.properties[property];
+    if (constraints.patternProperties !== undefined) {
+      for (let pattern of Object.keys(constraints.patternProperties)) {
+        if (RegExp(pattern).test(property)) {
+          return constraints.patternProperties[pattern];
+        }
+      }
+    }
+    if (constraints.additionalProperties !== undefined)
+      return constraints.additionalProperties;
+  }
+
   render() {
     if (!this.state.open) {
       return "";
     }
-    const properties = this.props.constraints.properties;
-
     const subEditors = Object.keys(this.value)
       .sort((a, b) => {
-        let i = properties[a].propertyOrder;
-        let j = properties[b].propertyOrder;
+        let i = this.propertyConstraint(a).propertyOrder;
+        let j = this.propertyConstraint(b).propertyOrder;
         if (i === undefined)
           i = 1000;
         if (j === undefined)
@@ -216,7 +301,7 @@ class ObjectEditor extends Component {
           <BaseEditor
             defaults={this.props.defaults}
             key={key} id={key}
-            constraints={properties[key]} //FIXME: handle additionalProperties and patternProperties
+            constraints={this.propertyConstraint(key)}
             value={this.value[key]} valueChange={this.valueChange}
           />);
       })

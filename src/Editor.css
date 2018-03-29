@@ -16,6 +16,13 @@
   min-width: 200px;
 }
 
+.propertyContainer .modal-footer {
+  display: initial;
+}
+
+.propertyContainer .invalid-feedback {
+  display: initial;
+}
 .propertyContainer > .modal-dialog label {
   justify-content: initial;
   display: initial;
