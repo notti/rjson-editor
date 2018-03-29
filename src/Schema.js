@@ -1,12 +1,13 @@
 import ObjectEditor from './editors/Object.js';
 import InputEditor from './editors/Input.js';
-
+import BooleanEditor from './editors/Boolean.js';
 
 const editorTypes = {
     "object": ObjectEditor,
     "string": InputEditor,
     "number": InputEditor,
-    "integer": InputEditor
+    "integer": InputEditor,
+    "boolean": BooleanEditor
 }
 
 class Constraints {
