@@ -1,5 +1,17 @@
-.hidden {
-  display: none;
+.propertyContainer {
+  position: relative;
+}
+
+.propertyContainer > .modal-dialog {
+  position: absolute;
+  margin: 0 !important;
+  width: max-content !important;
+  z-index: 10;
+}
+
+.propertyContainer > .modal-dialog label {
+  justify-content: initial;
+  display: initial;
 }
 
 .chevron {
