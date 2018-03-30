@@ -79,7 +79,7 @@ class BaseEditor extends Component {
     //FIXME: raw html in titles?
     return (
       <div className="form-group">
-        <label className="form-inline">{precontrol}<span dangerouslySetInnerHTML={{ __html: this.title }} />{editors}{postcontrol}</label>
+        <div className="form-inline mb-2">{precontrol}<span dangerouslySetInnerHTML={{ __html: this.title }} />{editors}{postcontrol}</div>
         <Editor
           key={this.state.editor}
           defaults={this.props.defaults}
