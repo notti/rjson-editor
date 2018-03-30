@@ -13,10 +13,13 @@ class PropertyEditor extends Component {
 
   handleChange = (e) => {
     this.setState(prevState => {
-      if (!prevState.value)
+      if (!prevState.value) {
         this.props.addProperty(this.props.item.id);
-      else
+      } else {
         this.props.delProperty(this.props.item.id);
+        if (this.props.item.custom)
+          this.props.update();
+      }
       return { value: !prevState.value }
     });
   }
@@ -37,8 +40,9 @@ class PropertyDialog extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { new: "", invalid: undefined };
+    this.state = { new: "", invalid: undefined, properties: props.getProperties() };
   }
+
   componentDidMount() {
     document.addEventListener('mousedown', this.handleClickOutside);
   }
@@ -89,12 +93,22 @@ class PropertyDialog extends Component {
       if (prevState.new === "" || prevState.invalid !== undefined)
         return;
       this.props.addProperty(prevState.new);
-      return { new: "", invalid: undefined }
+      return { new: "", invalid: undefined, properties: this.props.getProperties() }
     });
   }
 
+  update = () => {
+    this.setState({ properties: this.props.getProperties() });
+  }
+
   render() {
-    const properties = this.props.getProperties().map(item => (<PropertyEditor key={item.id} item={item} addProperty={this.props.addProperty} delProperty={this.props.delProperty} />));
+    const properties = this.state.properties.map(item => (
+      <PropertyEditor
+        key={item.id}
+        item={item}
+        addProperty={this.props.addProperty} delProperty={this.props.delProperty}
+        update={this.update}
+      />));
     const invalid = this.state.invalid;
     let textClass = "form-control";
     if (invalid !== undefined)
@@ -228,7 +242,7 @@ class ObjectEditor extends Component {
     const properties = this.props.constraints.properties || {};
 
     return [...new Set(Object.keys(properties).concat(active))].map(val => (
-      { id: val, active: active.indexOf(val) >= 0, required: required.indexOf(val) >= 0, title: (properties[val] || {}).title }
+      { id: val, active: active.indexOf(val) >= 0, required: required.indexOf(val) >= 0, title: (properties[val] || {}).title, custom: properties[val] === undefined }
     ));
   }
 
