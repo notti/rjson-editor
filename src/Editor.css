@@ -37,3 +37,11 @@
 .editor-chooser {
   width: auto;
 }
+
+.objectBody.is-invalid {
+  border-color: #dc3545 !important;
+}
+
+.objectBody .invalid-feedback {
+  display: initial;
+}

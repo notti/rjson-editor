@@ -216,7 +216,6 @@ class ObjectEditor extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { open: !props.defaults.collapsed };
     this.value = props.value;
     const required = props.constraints.required || [];
     this.hasCustom = props.constraints.patternProperties !== undefined ||
@@ -236,6 +235,7 @@ class ObjectEditor extends Component {
       }
       props.valueChange(props.id, this.value);
     }
+    this.state = { open: !props.defaults.collapsed, invalid: props.constraints.validate(this.value) };
   }
 
   getProperties = () => {
@@ -250,12 +250,22 @@ class ObjectEditor extends Component {
 
   addProperty = (id) => {
     this.value[id] = undefined;
-    this.forceUpdate();
+    this.setState(prevState => {
+      const invalid = this.props.constraints.validate(this.value);
+      if (invalid !== prevState.invalid)
+        return { invalid: invalid };
+      this.forceUpdate();
+    })
   }
 
   delProperty = (id) => {
     delete this.value[id];
-    this.forceUpdate();
+    this.setState(prevState => {
+      const invalid = this.props.constraints.validate(this.value);
+      if (invalid !== prevState.invalid)
+        return { invalid: invalid };
+      this.forceUpdate();
+    })
   }
 
   componentDidMount() {
@@ -322,8 +332,14 @@ class ObjectEditor extends Component {
           />);
       })
 
+    const invalid = this.state.invalid;
+    let classes = "objectBody mx-2 px-2 border border-top-0 rounded-bottom";
+    if (invalid !== undefined)
+      classes += " is-invalid";
+
     return (
-      <div className="objectBody mx-2 px-2 border border-top-0 rounded-bottom">
+      <div className={classes}>
+        {invalid !== undefined && <div className="invalid-feedback">{invalid}</div>}
         {subEditors}
       </div>
     );
