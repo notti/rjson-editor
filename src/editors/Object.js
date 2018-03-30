@@ -298,6 +298,7 @@ class ObjectEditor extends Component {
 
     return (
       <div className={classes}>
+        {subEditors.length === 0 && <span className="badge badge-secondary mx-1 my-1">No properties</span>}
         {invalid !== undefined && <div className="invalid-feedback">{invalid}</div>}
         {subEditors}
       </div>
