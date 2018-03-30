@@ -6,6 +6,8 @@
     "bootstrap": "^4.0.0",
     "open-iconic": "^1.1.1",
     "react": "^16.2.0",
+    "react-dnd": "^2.6.0",
+    "react-dnd-html5-backend": "^2.6.0",
     "react-dom": "^16.2.0",
     "react-scripts": "1.1.1"
   },

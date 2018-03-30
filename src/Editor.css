@@ -45,3 +45,25 @@
 .objectBody .invalid-feedback {
   display: initial;
 }
+
+.symbol {
+  vertical-align: baseline;
+}
+
+.array-item {
+  display: flex;
+  align-items: flex-end;
+}
+
+.array-item.dragging {
+  opacity: 0 !important;
+}
+
+.array-item > button {
+  height: fit-content;
+
+}
+
+.move {
+  cursor: row-resize !important;
+}
