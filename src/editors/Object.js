@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
-import chevronRight from 'open-iconic/svg/chevron-right.svg'
-import chevronBottom from 'open-iconic/svg/chevron-bottom.svg'
-
 import { BaseEditor } from '../Editor.js';
+import Chevron from './Chevron.js';
 
 class PropertyEditor extends Component {
   constructor(props) {
@@ -179,35 +177,6 @@ class PropertyButton extends Component {
           constraints={this.props.constraints}
         />}
       </div>
-    );
-  }
-}
-
-class Chevron extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = { open: props.open };
-  }
-
-  handleHide = (e) => {
-    e.preventDefault();
-    this.setState((prevState) => {
-      let open = !prevState.open;
-      this.props.handleHide(open);
-      return { open: open }
-    })
-  }
-
-  render() {
-    const button = this.state.open ? (
-      <img src={chevronBottom} alt="close" className="chevron" />
-    ) : (
-        <img src={chevronRight} alt="open" className="chevron" />
-      );
-
-    return (
-      <a href="#collapse" className="mr-2" onClick={this.handleHide}>{button}</a>
     );
   }
 }
