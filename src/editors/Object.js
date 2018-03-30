@@ -250,22 +250,12 @@ class ObjectEditor extends Component {
 
   addProperty = (id) => {
     this.value[id] = undefined;
-    this.setState(prevState => {
-      const invalid = this.props.constraints.validate(this.value);
-      if (invalid !== prevState.invalid)
-        return { invalid: invalid };
-      this.forceUpdate();
-    })
+    this.setState({ invalid: this.props.constraints.validate(this.value) });
   }
 
   delProperty = (id) => {
     delete this.value[id];
-    this.setState(prevState => {
-      const invalid = this.props.constraints.validate(this.value);
-      if (invalid !== prevState.invalid)
-        return { invalid: invalid };
-      this.forceUpdate();
-    })
+    this.setState({ invalid: this.props.constraints.validate(this.value) });
   }
 
   componentDidMount() {
