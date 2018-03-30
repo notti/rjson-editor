@@ -65,7 +65,9 @@ class PropertyDialog extends Component {
     const constraints = this.props.constraints;
     const value = e.target.value;
     let invalid = undefined;
-    if (constraints.propertyNames !== undefined)
+    if ((new Set(this.state.properties.map((val) => (val.id)))).has(value))
+      invalid = "Property already exists";
+    if (invalid === undefined && constraints.propertyNames !== undefined)
       invalid = constraints.propertyNames.validate(value);
     if (invalid === undefined &&
       constraints.additionalProperties !== undefined && constraints.additionalProperties !== false &&
