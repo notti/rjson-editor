@@ -19,6 +19,7 @@ class Constraints {
         this.type = type;
         this.const = constraints.const
         this.enum = constraints.enum
+        this.format = constraints.format
         switch (type) {
             case "array":
                 if (constraints.items !== undefined) {

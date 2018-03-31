@@ -77,20 +77,26 @@ class BaseEditor extends Component {
       Editor = Editor[this.state.editor].component();
     }
 
+    const editor = (<Editor
+      state={this.props.state}
+      key={this.state.editor}
+      defaults={this.props.defaults}
+      id={this.props.id}
+      constraints={constraints}
+      value={this.value} valueChange={this.valueChange}
+      addPrecontrol={this.addPrecontrol} delPrecontrol={this.delPrecontrol}
+      addPostcontrol={this.addPostcontrol} delPostcontrol={this.delPostcontrol}
+    />);
+
+    if (this.props.short === true)
+      return (
+          <div className="form-group mb-2">{precontrol}{editor}{editors}{postcontrol}</div>
+      );
     //FIXME: raw html in titles?
     return (
       <div className="form-group">
         <div className="form-inline mb-2">{precontrol}<span dangerouslySetInnerHTML={{ __html: this.title }} />{editors}{postcontrol}</div>
-        <Editor
-          state={this.props.state}
-          key={this.state.editor}
-          defaults={this.props.defaults}
-          id={this.props.id}
-          constraints={constraints}
-          value={this.value} valueChange={this.valueChange}
-          addPrecontrol={this.addPrecontrol} delPrecontrol={this.delPrecontrol}
-          addPostcontrol={this.addPostcontrol} delPostcontrol={this.delPostcontrol}
-        />
+        {editor}
       </div>
     );
   }
