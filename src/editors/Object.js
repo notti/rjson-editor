@@ -296,6 +296,9 @@ class ObjectEditor extends Component {
     let classes = "objectBody mx-2 px-2 border border-top-0 rounded-bottom";
     if (invalid !== undefined)
       classes += " is-invalid";
+    if (this.props.constraints.format === "grid") {
+      classes += " grid";
+    }
 
     return (
       <div className={classes}>

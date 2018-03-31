@@ -90,11 +90,11 @@ class BaseEditor extends Component {
 
     if (this.props.short === true)
       return (
-          <div className="form-group mb-2">{precontrol}{editor}{editors}{postcontrol}</div>
+          <div className="form-group mb-2 mr-2">{precontrol}{editor}{editors}{postcontrol}</div>
       );
     //FIXME: raw html in titles?
     return (
-      <div className="form-group">
+      <div className="form-group mr-2">
         <div className="form-inline mb-2">{precontrol}<span dangerouslySetInnerHTML={{ __html: this.title }} />{editors}{postcontrol}</div>
         {editor}
       </div>

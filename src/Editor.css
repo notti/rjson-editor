@@ -28,6 +28,15 @@
   display: initial;
 }
 
+.objectBody.grid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.objectBody.grid > .form-group > .form-inline {
+  min-height: calc(1.8125rem + 2px);
+}
+
 .chevron {
   width: 12px;
   height: 12px;
