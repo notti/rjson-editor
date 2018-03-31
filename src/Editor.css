@@ -52,7 +52,7 @@
 
 .array-item {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
 }
 
 .array-item.dragging {
