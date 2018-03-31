@@ -11,7 +11,7 @@ const dragType = 'ArrayItem';
 
 const arrayItemSource = {
     beginDrag(props) {
-        return { dragId: props.dragId, originalIndex: props.id };
+        return { dragId: props.dragId, originalIndex: props.id, path: props.path };
     },
     endDrag(props, monitor) {
         const { dragId: droppedId, originalIndex } = monitor.getItem();
@@ -26,9 +26,9 @@ const arrayItemTarget = {
         return false
     },
     hover(props, monitor) {
-        const { dragId: draggedId } = monitor.getItem();
-        const { dragId: overId } = props;
-        if (draggedId !== overId)
+        const { dragId: draggedId, path: draggedPath } = monitor.getItem();
+        const { dragId: overId, path: overPath } = props;
+        if (draggedPath === overPath && draggedId !== overId)
             props.moveItem(draggedId, props.findKey(overId))
     }
 }
@@ -70,6 +70,9 @@ const ArrayItemDraggable = DropTarget(dragType, arrayItemTarget, connect => ({
 }))(ArrayItem));
 
 const arrayTarget = {
+    canDrop(props, monitor) {
+        return props.state.path() === monitor.getItem().path;
+    },
     drop() {}
 }
 
@@ -147,7 +150,7 @@ class ArrayEditor extends Component {
         const { connectDropTarget } = this.props;
         const subEditors = this.value.map((value, id) => (
             <ArrayItemDraggable
-                state={this.props.state}
+                state={this.props.state} path={this.props.state.path()}
                 defaults={this.props.defaults}
                 key={this.keys[id]} dragId={this.keys[id]} id={id}
                 constraints={this.propertyConstraint(id)}
