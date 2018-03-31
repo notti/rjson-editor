@@ -90,7 +90,7 @@ class BaseEditor extends Component {
 
     if (this.props.short === true)
       return (
-          <div className="form-group mb-2 mr-2">{precontrol}{editor}{editors}{postcontrol}</div>
+          <div className="form-group mb-2 mr-2 short">{precontrol}{editors}<div className="editor">{editor}</div>{postcontrol}</div>
       );
     //FIXME: raw html in titles?
     return (

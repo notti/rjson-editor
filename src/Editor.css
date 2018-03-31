@@ -28,9 +28,19 @@
   display: initial;
 }
 
+.short > .editor {
+  flex-grow: 2;
+}
+
 .objectBody.grid {
   display: flex;
   flex-wrap: wrap;
+}
+
+.form-group.short {
+  display: flex;
+  flex-wrap: wrap;
+  flex-grow: 2;
 }
 
 .objectBody.grid > .form-group > .form-inline {

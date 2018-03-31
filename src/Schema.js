@@ -65,7 +65,7 @@ class Constraints {
         if (this.enum !== undefined)
             this.constraints.push(val => {
                 if (this.enum.indexOf(val) === -1)
-                    return "Must be one of " + this.enum.join(', ');
+                    return "Must be one of the choices.";
             });
         if (type === "integer") type = "number";
         const c = constraintTypes[type];
