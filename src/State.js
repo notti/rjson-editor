@@ -6,8 +6,8 @@ export default class State {
         else
             this._path = path.concat(id);
     }
-    getPath = () => {
-        return this.path.join('.');
+    path = () => {
+        return this._path.join('.');
     }
     child = (id) => {
         if (this._states[id] === undefined)
