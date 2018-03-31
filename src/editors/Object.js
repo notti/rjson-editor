@@ -284,6 +284,7 @@ class ObjectEditor extends Component {
       }).map((key) => {
         return (
           <BaseEditor
+            state={this.props.state.child(key)}
             defaults={this.props.defaults}
             key={key} id={key}
             constraints={this.propertyConstraint(key)}

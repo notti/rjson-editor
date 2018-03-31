@@ -42,6 +42,7 @@ class ArrayItem extends Component {
         return connectDragPreview(connectDropTarget(
             <div className={classes}>
                 <BaseEditor
+                    state={this.props.state.child(this.props.id)}
                     defaults={this.props.defaults}
                     id={this.props.id}
                     constraints={this.props.constraints}
@@ -146,6 +147,7 @@ class ArrayEditor extends Component {
         const { connectDropTarget } = this.props;
         const subEditors = this.value.map((value, id) => (
             <ArrayItemDraggable
+                state={this.props.state}
                 defaults={this.props.defaults}
                 key={this.keys[id]} dragId={this.keys[id]} id={id}
                 constraints={this.propertyConstraint(id)}

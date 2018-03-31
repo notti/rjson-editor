@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Editor.css';
 import processSchema from './Schema.js';
+import State from './State.js';
 
 class BaseEditor extends Component {
   constructor(props) {
@@ -81,6 +82,7 @@ class BaseEditor extends Component {
       <div className="form-group">
         <div className="form-inline mb-2">{precontrol}<span dangerouslySetInnerHTML={{ __html: this.title }} />{editors}{postcontrol}</div>
         <Editor
+          state={this.props.state}
           key={this.state.editor}
           defaults={this.props.defaults}
           id={this.props.id}
@@ -113,6 +115,7 @@ class JSONEditor extends Component {
   render() {
     return (
       <BaseEditor
+        state={new State()}
         defaults={this.defaults}
         constraints={this.pseudoschema}
         value={this.props.value} valueChange={this.valueChange}
