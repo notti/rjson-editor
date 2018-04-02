@@ -185,30 +185,56 @@ class ObjectEditor extends Component {
   constructor(props) {
     super(props);
 
-    this.value = props.value;
     const required = props.constraints.required || [];
     this.hasCustom = props.constraints.patternProperties !== undefined ||
       (props.constraints.additionalProperties !== undefined && props.constraints.additionalProperties !== false)
     this.hasOptional = this.hasCustom ||
       Object.keys(props.constraints.properties || {}).filter(item => (required.indexOf(item) < 0)).length !== 0;
-    if (this.value === undefined) {
-      if (props.constraints.default !== undefined) {
-        this.value = JSON.parse(JSON.stringify(props.constraints.default));
+
+    this.state = {
+      open: !props.defaults.collapsed,
+      value: {},
+      invalid: undefined
+    };
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.value === prevState.value) {
+      return null;
+    }
+    const constraints = nextProps.constraints;
+    let value = nextProps.value;
+    if (value === undefined) {
+      if (constraints.default !== undefined) {
+        value = JSON.parse(JSON.stringify(constraints.default));
       } else {
-        this.value = {}
-        if (props.constraints.required !== undefined) {
-          for (let property of props.constraints.required) {
-            this.value[property] = undefined;
+        value = {};
+        if (constraints.required !== undefined) {
+          for (let property of constraints.required) {
+            value[property] = undefined;
           }
         }
       }
-      props.valueChange(props.id, this.value);
+      nextProps.valueChange(nextProps.id, value);
+    } else if (constraints.required !== undefined) {
+      let changed = false;
+      for (let property of constraints.required) {
+        if (!value.hasOwnProperty(property)) {
+          value[property] = undefined;
+          changed = true;
+        }
+      }
+      if (changed)
+        nextProps.valueChange(nextProps.id, value);
     }
-    this.state = { open: !props.defaults.collapsed, invalid: props.constraints.validate(this.value) };
+    return {
+      value: value,
+      valid: nextProps.constraints.validate(value)
+    };
   }
 
   getProperties = () => {
-    const active = Object.keys(this.value);
+    const active = Object.keys(this.state.value);
     const required = this.props.constraints.required || [];
     const properties = this.props.constraints.properties || {};
 
@@ -218,13 +244,25 @@ class ObjectEditor extends Component {
   }
 
   addProperty = (id) => {
-    this.value[id] = undefined;
-    this.setState({ invalid: this.props.constraints.validate(this.value) });
+    let tmp = this.state.value
+    tmp[id] = undefined;
+    this.setState({ invalid: this.props.constraints.validate(this.state.value) });
   }
 
   delProperty = (id) => {
-    delete this.value[id];
-    this.setState({ invalid: this.props.constraints.validate(this.value) });
+    let tmp = this.state.value
+    delete tmp[id];
+    this.setState({ invalid: this.props.constraints.validate(this.state.value) });
+  }
+
+  setValue = (val) => {
+    if (JSON.stringify(val) === JSON.stringify(this.state.value))
+      return;
+    this.setState({
+      value: val,
+      invalid: this.props.constraints.validate(val)
+    });
+    this.props.valueChange(this.props.id, val);
   }
 
   componentDidMount() {
@@ -250,7 +288,8 @@ class ObjectEditor extends Component {
   }
 
   valueChange = (key, newValue) => {
-    this.value[key] = newValue;
+    let tmp = this.state.value;
+    tmp[key] = newValue;
   }
 
   propertyConstraint = (property) => {
@@ -272,7 +311,7 @@ class ObjectEditor extends Component {
     if (!this.state.open) {
       return "";
     }
-    const subEditors = Object.keys(this.value)
+    const subEditors = Object.keys(this.state.value)
       .sort((a, b) => {
         let i = this.propertyConstraint(a).propertyOrder;
         let j = this.propertyConstraint(b).propertyOrder;
@@ -288,7 +327,7 @@ class ObjectEditor extends Component {
             defaults={this.props.defaults}
             key={key} id={key}
             constraints={this.propertyConstraint(key)}
-            value={this.value[key]} valueChange={this.valueChange}
+            value={this.state.value[key]} valueChange={this.valueChange}
           />);
       })
 

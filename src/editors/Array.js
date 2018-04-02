@@ -74,20 +74,41 @@ const arrayTarget = {
     canDrop(props, monitor) {
         return props.state.path() === monitor.getItem().path;
     },
-    drop() {}
+    drop() { }
 }
 
 class ArrayEditor extends Component {
     constructor(props) {
         super(props);
 
-        this.value = props.value;
-        if (this.value === undefined) {
-            this.value = []; //FIXME
-            props.valueChange(props.id, this.value);
+        this.state = {
+            open: !props.defaults.collapsed,
+            value: [],
+            keys: [],
+            invalid: undefined
+        };
+    }
+
+    static getDerivedStateFromProps(nextProps, prevState) {
+        if (nextProps.value === prevState.value) {
+            return null;
         }
-        this.keys = this.value.map((value, index) => (index));
-        this.state = { open: !props.defaults.collapsed, invalid: props.constraints.validate(this.value) };
+
+        let value = nextProps.value;
+        const constraints = nextProps.constraints;
+        if (value === undefined) {
+            if (constraints.default !== undefined) {
+                value = JSON.parse(JSON.stringify(constraints.default));
+            } else {
+                value = [];
+            }
+            nextProps.valueChange(nextProps.id, value);
+        }
+        return {
+            value: value,
+            keys: value.map((value, index) => (index)),
+            valid: nextProps.constraints.validate(value)
+        };
     }
 
     componentDidMount() {
@@ -108,36 +129,43 @@ class ArrayEditor extends Component {
     }
 
     valueChange = (key, newValue) => {
-        this.value[key] = newValue;
+        let tmp = this.state.value;
+        tmp[key] = newValue;
     }
 
     handleAdd = () => {
-        this.value.push(undefined);
-        this.keys.push(this.keys.length === 0 ? 0 : this.keys.reduce((max, val) => val > max ? val : max, this.keys[0]) + 1);
-        this.setState({ invalid: this.props.constraints.validate(this.value) })
+        let tmp = this.state.value;
+        tmp.push(undefined);
+        tmp = this.state.keys;
+        tmp.push(tmp.length === 0 ? 0 : tmp.reduce((max, val) => val > max ? val : max, this.state.keys[0]) + 1);
+        this.setState({ invalid: this.props.constraints.validate(this.state.value) })
     }
 
     handleDel = (index) => {
-        this.value.splice(index, 1);
-        this.keys.splice(index, 1);
-        this.setState({ invalid: this.props.constraints.validate(this.value) })
+        let tmp = this.state.value;
+        tmp.splice(index, 1);
+        tmp = this.state.keys;
+        tmp.splice(index, 1);
+        this.setState({ invalid: this.props.constraints.validate(this.state.value) })
     }
 
     findKey = (key) => {
-        return this.keys.indexOf(key);
+        return this.state.keys.indexOf(key);
     }
 
     moveItem = (dragged, b) => {
         const a = this.findKey(dragged);
-        this.value.splice(b, 0, this.value.splice(a, 1)[0]);
-        this.keys.splice(b, 0, this.keys.splice(a, 1)[0]);
+        let tmp = this.state.value;
+        tmp.splice(b, 0, tmp.splice(a, 1)[0]);
+        tmp = this.state.keys;
+        tmp.splice(b, 0, tmp.splice(a, 1)[0]);
         this.forceUpdate();
     }
 
     propertyConstraint = (index) => {
         const constraints = this.props.constraints;
         if (Array.isArray(constraints.items)) {
-            if (index >= this.value.length)
+            if (index >= this.state.value.length)
                 return constraints.additionalItems;
             return constraints.items[index];
         }
@@ -149,14 +177,14 @@ class ArrayEditor extends Component {
             return "";
         }
         const { connectDropTarget } = this.props;
-        const subEditors = this.value.map((value, id) => (
+        const subEditors = this.state.value.map((value, id) => (
             <ArrayItemDraggable
                 state={this.props.state} path={this.props.state.path()}
                 defaults={this.props.defaults}
-                key={this.keys[id]} dragId={this.keys[id]} id={id}
+                key={this.state.keys[id]} dragId={this.state.keys[id]} id={id}
                 constraints={this.propertyConstraint(id)}
-                value={this.value[id]} valueChange={this.valueChange}
-                moveable={this.value.length > 1} moveItem={this.moveItem} findKey={this.findKey}
+                value={this.state.value[id]} valueChange={this.valueChange}
+                moveable={this.state.value.length > 1} moveItem={this.moveItem} findKey={this.findKey}
                 handleDel={this.handleDel}
                 short={this.props.constraints.format === "table"}
             />)

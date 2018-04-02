@@ -8,10 +8,12 @@ class BaseEditor extends Component {
   constructor(props) {
     super(props);
 
-    this.title = props.constraints.title || this.props.id;
     this.editor = props.constraints.getEditor();
-    this.value = props.value;
-    this.state = { editor: 0, precontrol: {}, postcontrol: {} }; //FIXME: match default editor with value
+    this.state = {
+      editor: 0,  //FIXME: match default editor with value
+      precontrol: {},
+      postcontrol: {}
+    };
   }
 
   addPrecontrol = (id, order, control) => {
@@ -51,7 +53,6 @@ class BaseEditor extends Component {
   }
 
   valueChange = (key, newValue) => {
-    this.value = newValue
     this.props.valueChange(key, newValue);
   }
 
@@ -83,19 +84,20 @@ class BaseEditor extends Component {
       defaults={this.props.defaults}
       id={this.props.id}
       constraints={constraints}
-      value={this.value} valueChange={this.valueChange}
+      value={this.props.value} valueChange={this.valueChange}
       addPrecontrol={this.addPrecontrol} delPrecontrol={this.delPrecontrol}
       addPostcontrol={this.addPostcontrol} delPostcontrol={this.delPostcontrol}
     />);
 
     if (this.props.short === true)
       return (
-          <div className="form-group mb-2 mr-2 short">{precontrol}{editors}<div className="editor">{editor}</div>{postcontrol}</div>
+        <div className="form-group mb-2 mr-2 short">{precontrol}{editors}<div className="editor">{editor}</div>{postcontrol}</div>
       );
+    const title = this.props.constraints.title || this.props.id;
     //FIXME: raw html in titles?
     return (
       <div className="form-group mr-2">
-        <div className="form-inline mb-2">{precontrol}<span dangerouslySetInnerHTML={{ __html: this.title }} />{editors}{postcontrol}</div>
+        <div className="form-inline mb-2">{precontrol}<span dangerouslySetInnerHTML={{ __html: title }} />{editors}{postcontrol}</div>
         {editor}
       </div>
     );

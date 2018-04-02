@@ -4,23 +4,8 @@ class Checkbox extends Component {
     constructor(props) {
         super(props);
 
-        let value = props.value;
-
-        if (props.constraints.const !== undefined && value !== props.constraints.const) {
-            value = props.constraints.const;
-            props.valueChange(props.id, value);
-        }
-        if (value === undefined) {
-            if (props.constraints.default !== undefined)
-                value = props.constraints.default;
-            else {
-                value = false;
-            }
-            props.valueChange(props.id, value);
-        }
-
         this.state = {
-            value: value
+            value: props.value
         };
     }
 
@@ -29,6 +14,13 @@ class Checkbox extends Component {
             this.props.valueChange(this.props.id, !prevState.value);
             return { value: !prevState.value }
         });
+    }
+
+    updateState = (value) => {
+        this.setState(prevState => {
+            if (prevState.value !== value)
+                return { value: value };
+        })
     }
 
     render() {
@@ -44,19 +36,64 @@ class Checkbox extends Component {
 
 
 class BooleanEditor extends Component {
+    constructor(props) {
+        super(props)
+
+        this.checkbox = null;
+
+        this.state = {
+            value: false
+        }
+    }
+
+    valueChange = (id, value) => {
+        this.props.valueChange(id, value);
+    }
+
+    static getDerivedStateFromProps(nextProps, prevState) {
+        if (nextProps.value === prevState.value) {
+            return null;
+        }
+        let value = nextProps.value;
+
+        if (nextProps.constraints.const !== undefined && value !== nextProps.constraints.const) {
+            value = nextProps.constraints.const;
+            nextProps.valueChange(nextProps.id, value);
+        }
+        if (value === undefined) {
+            if (nextProps.constraints.default !== undefined)
+                value = nextProps.constraints.default;
+            else {
+                value = false;
+            }
+            nextProps.valueChange(nextProps.id, value);
+        }
+        return { value: value };
+    }
+
+    setRef = (ref) => {
+        this.checkbox = ref;
+    }
+
     componentDidMount() {
         this.props.addPrecontrol("checkbox", 1000, (
             <Checkbox
                 key="checkbox"
                 id={this.props.id}
-                value={this.props.value}
+                ref={this.setRef}
+                value={this.state.value}
                 constraints={this.props.constraints}
-                valueChange={this.props.valueChange}
+                valueChange={this.valueChange}
             />));
     }
 
     componentWillUnmount() {
         this.props.delPrecontrol("checkbox");
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevState.value !== this.state.value)
+            this.checkbox.updateState(this.state.value)
     }
 
     render() {

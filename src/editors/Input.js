@@ -4,27 +4,40 @@ class InputEditor extends Component {
     constructor(props) {
         super(props);
 
-        let value = props.value;
-
-        if (props.constraints.const !== undefined && value !== props.constraints.const) {
-            value = props.constraints.const;
-            props.valueChange(props.id, value);
-        }
-        if (value === undefined) {
-            if (props.constraints.default !== undefined)
-                value = props.constraints.default;
-            else {
-                if (props.constraints.type === "string")
-                    value = "";
-                else
-                    value = 0;
-            }
-            props.valueChange(props.id, value);
-        }
-
         this.state = {
-            value: value,
-            valid: this.props.constraints.validate(value)
+            value: "",
+            invalid: undefined
+        }
+    }
+
+    static getDerivedStateFromProps(nextProps, prevState) {
+        if (nextProps.value === prevState.value) {
+            return null;
+        }
+        let textValue = nextProps.value;
+        let value = textValue;
+        const { const: c, default: d, type: t } = nextProps.constraints;
+
+        if (c !== undefined && textValue !== c) {
+            textValue = value = c;
+            nextProps.valueChange(nextProps.id, textValue);
+        } else if (textValue === undefined) {
+            if (d !== undefined)
+                textValue = value = d;
+            else {
+                if (t === "string")
+                    textValue = value = "";
+                else {
+                    value = 0;
+                    textValue = "";
+                }
+            }
+            nextProps.valueChange(nextProps.id, textValue);
+        }
+
+        return {
+            value: textValue,
+            valid: nextProps.constraints.validate(value)
         };
     }
 
