@@ -3,7 +3,7 @@ import { BaseEditor } from '../Editor.js';
 import Chevron from './Chevron.js';
 import plusImage from 'open-iconic/svg/plus.svg';
 import moveImage from 'open-iconic/svg/resize-height.svg';
-import xImage from 'open-iconic/svg/ban.svg';
+import xImage from 'open-iconic/svg/delete.svg';
 import { DragSource, DropTarget, DragDropContext } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend';
 
