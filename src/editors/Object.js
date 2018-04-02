@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { BaseEditor } from '../Editor.js';
 import Chevron from './Chevron.js';
+import editImage from 'open-iconic/svg/pencil.svg';
 
 class PropertyEditor extends Component {
   constructor(props) {
@@ -265,6 +266,10 @@ class ObjectEditor extends Component {
     this.props.valueChange(this.props.id, val);
   }
 
+  openModal = () => {
+    this.props.editModal.current.open(this);
+  }
+
   componentDidMount() {
     this.props.addPrecontrol("chevron", -1000, <Chevron key="objectChevron" handleHide={this.handleHide} open={this.state.open} />);
     if (this.hasOptional)
@@ -276,11 +281,18 @@ class ObjectEditor extends Component {
           hasCustom={this.hasCustom}
           constraints={this.props.constraints}
         />));
+    this.props.addPostcontrol("editJSON", -999, (
+      <button type="button"
+        key="editJSON"
+        className="btn btn-sm btn-outline-secondary"
+        onClick={this.openModal}><img src={editImage} alt="edit" className="mr-1 symbol" />JSON</button>
+    ))
   }
 
   componentWillUnmount() {
     this.props.delPrecontrol("chevron");
     this.props.delPostcontrol("properties");
+    this.props.delPostcontrol("editJSON");
   }
 
   handleHide = (open) => {
@@ -328,6 +340,7 @@ class ObjectEditor extends Component {
             key={key} id={key}
             constraints={this.propertyConstraint(key)}
             value={this.state.value[key]} valueChange={this.valueChange}
+            editModal={this.props.editModal}
           />);
       })
 

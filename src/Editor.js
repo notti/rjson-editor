@@ -4,6 +4,9 @@ import './Editor.css';
 import processSchema from './Schema.js';
 import State from './State.js';
 
+import okImage from 'open-iconic/svg/check.svg';
+import cancelImage from 'open-iconic/svg/x.svg';
+
 class BaseEditor extends Component {
   constructor(props) {
     super(props);
@@ -87,6 +90,7 @@ class BaseEditor extends Component {
       value={this.props.value} valueChange={this.valueChange}
       addPrecontrol={this.addPrecontrol} delPrecontrol={this.delPrecontrol}
       addPostcontrol={this.addPostcontrol} delPostcontrol={this.delPostcontrol}
+      editModal={this.props.editModal}
     />);
 
     if (this.props.short === true)
@@ -104,6 +108,80 @@ class BaseEditor extends Component {
   }
 }
 
+class RawEditor extends Component {
+  constructor(props) {
+    super(props);
+
+    this.backdrop = document.createElement("div");
+    this.backdrop.classList.add("modal-backdrop", "show");
+    this.dialog = React.createRef();
+    this.session = null;
+    this.editor = null;
+    this.obj = null;
+  }
+
+  close = () => {
+    this.obj = null;
+    const dialog = this.dialog.current;
+    document.body.removeChild(this.backdrop);
+    dialog.classList.remove("show");
+    dialog.style.display = 'none';
+    document.body.classList.remove("modal-open");
+  }
+
+  ok = () => {
+    try {
+      this.obj.setValue(JSON.parse(this.session.getValue()));
+      this.close();
+    } catch (e) {
+      window.alert("Invalid JSON!");
+    }
+  }
+
+  open = (obj) => {
+    this.obj = obj;
+    this.session.setValue(JSON.stringify(obj.state.value, null, 2));
+    const dialog = this.dialog.current;
+    dialog.classList.add("show");
+    dialog.style.display = 'block';
+    document.body.appendChild(this.backdrop);
+    document.body.classList.add("modal-open");
+  }
+
+  componentDidMount() {
+    var ace = require('brace');
+    require('brace/mode/json');
+    require('brace/theme/github');
+
+    this.editor = ace.edit('ace');
+    this.editor.$blockScrolling = Infinity;
+    this.session = this.editor.getSession();
+    this.session.setMode('ace/mode/json');
+    this.editor.setTheme('ace/theme/github');
+  }
+
+  render() {
+    return (
+      <div className="modal" tabIndex="-1" role="dialog" ref={this.dialog}>
+        <div className="modal-dialog raw-dialog" role="document">
+          <div className="modal-content raw-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Edit raw JSON</h5>
+              <button type="button" className="close" onClick={this.close}>
+                <span>&times;</span>
+              </button>
+            </div>
+            <div className="modal-body" id="ace"></div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-primary" onClick={this.ok}><img src={okImage} alt="ok" className="mr-1 symbol" />Modify</button>
+              <button type="button" className="btn btn-secondary" onClick={this.close}><img src={cancelImage} alt="cancel" className="mr-1 symbol" />Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>)
+  }
+}
+
 class JSONEditor extends Component {
   constructor(props) {
     super(props);
@@ -114,6 +192,7 @@ class JSONEditor extends Component {
     }
     this.schema = props.schema;
     this.pseudoschema = processSchema(this.schema);
+    this.editModal = React.createRef();
   }
 
   valueChange = (key, newValue) => {
@@ -122,12 +201,16 @@ class JSONEditor extends Component {
 
   render() {
     return (
-      <BaseEditor
-        state={new State()}
-        defaults={this.defaults}
-        constraints={this.pseudoschema}
-        value={this.props.value} valueChange={this.valueChange}
-      />
+      <React.Fragment>
+        <BaseEditor
+          state={new State()}
+          defaults={this.defaults}
+          constraints={this.pseudoschema}
+          value={this.props.value} valueChange={this.valueChange}
+          editModal={this.editModal}
+        />
+        <RawEditor ref={this.editModal} />
+      </React.Fragment>
     );
   }
 }

@@ -47,7 +47,9 @@ class ArrayItem extends Component {
                     id={this.props.id}
                     constraints={this.props.constraints}
                     value={this.props.value} valueChange={this.props.valueChange}
-                    short={this.props.short} />
+                    short={this.props.short}
+                    editModal={this.props.editModal}
+                />
                 <button key="arrayDelete"
                     type="button" className="btn btn-sm btn-outline-secondary mx-2 mb-3" tabIndex="-1"
                     onClick={() => { this.props.handleDel(this.props.id) }}>
@@ -187,6 +189,7 @@ class ArrayEditor extends Component {
                 moveable={this.state.value.length > 1} moveItem={this.moveItem} findKey={this.findKey}
                 handleDel={this.handleDel}
                 short={this.props.constraints.format === "table"}
+                editModal={this.props.editModal}
             />)
         );
 

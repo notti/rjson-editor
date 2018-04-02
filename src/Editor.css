@@ -87,3 +87,19 @@
 .move {
   cursor: row-resize !important;
 }
+
+.raw-dialog {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  max-width: initial;
+}
+
+.raw-content {
+  position: absolute;
+  top: 10%;
+  bottom: 10%;
+  left: 10%;
+  right: 10%;
+  width: initial;
+}
