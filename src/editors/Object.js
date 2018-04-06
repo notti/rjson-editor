@@ -167,7 +167,7 @@ class PropertyButton extends Component {
       classes += " active"
     }
     return (
-      <div className="mx-2 propertyContainer">
+      <div className="ml-2 propertyContainer">
         <button type="button" className={classes} onClick={this.handleOpen} ref={this.setWrapperRef}>Properties</button>
         {this.state.open && <PropertyDialog
           close={this.close}
@@ -287,7 +287,7 @@ class ObjectEditor extends Component {
     this.props.addPostcontrol("editJSON", -999, (
       <button type="button"
         key="editJSON"
-        className="btn btn-sm btn-outline-secondary"
+        className="btn btn-sm btn-outline-secondary ml-2"
         onClick={this.openModal}><img src={editImage} alt="edit" className="mr-1 symbol" />JSON</button>
     ))
   }
