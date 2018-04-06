@@ -186,7 +186,6 @@ class RawEditor extends Component {
 class JSONEditor extends Component {
   constructor(props) {
     super(props);
-    this.value = props.value;
 
     this.defaults = {
       collapsed: false
@@ -194,10 +193,28 @@ class JSONEditor extends Component {
     this.schema = props.schema;
     this.pseudoschema = processSchema(this.schema);
     this.editModal = React.createRef();
+    this.state = {
+      value: undefined,
+      state: new State()
+    }
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.value === prevState.value) {
+      return null;
+    }
+    return {
+      value: nextProps.value,
+      state: new State()
+    };
   }
 
   valueChange = (key, newValue) => {
-    this.value = newValue
+    this.setState({ value: newValue })
+  }
+
+  getValue = () => {
+    return this.state.value;
   }
 
   onEdit = () => {
@@ -207,10 +224,10 @@ class JSONEditor extends Component {
     return (
       <React.Fragment>
         <BaseEditor
-          state={new State()}
+          state={this.state.state}
           defaults={this.defaults}
           constraints={this.pseudoschema}
-          value={this.props.value} valueChange={this.valueChange}
+          value={this.state.value} valueChange={this.valueChange}
           editModal={this.editModal}
           onEdit={this.props.onEdit || this.onEdit}
         />
