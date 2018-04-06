@@ -13,7 +13,7 @@ class BaseEditor extends Component {
 
     this.editor = props.constraints.getEditor();
     this.state = {
-      editor: 0,  //FIXME: match default editor with value
+      editor: this.editor.idForValue(props.value),
       precontrol: {},
       postcontrol: {}
     };

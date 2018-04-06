@@ -95,6 +95,9 @@ class Editor {
     component() {
         return editorTypes[this.type];
     }
+    idForValue(value) {
+        return 0;
+    }
 }
 
 class MultiEditor {
@@ -106,6 +109,77 @@ class MultiEditor {
 
     component() {
         return this.editors;
+    }
+    idForValue(value) {
+        if (value === undefined)
+            return 0;
+        let match = [];
+        let mightmatch = [];
+        for (let i = 0; i < this.editors.length; i++) {
+            const constraints = this.editors[i].constraints
+            let ok = false;
+            switch (constraints.type) {
+                case "null":
+                    if (value === null)
+                        ok = true;
+                    break;
+                case "boolean":
+                    if (typeof value === "boolean")
+                        ok = true;
+                    break;
+                case "integer":
+                    if (Number.isInteger(value))
+                        ok = true;
+                    break;
+                case "number":
+                    if (typeof value === "number")
+                        ok = true;
+                    break;
+                case "string":
+                    if (typeof value === "string")
+                        ok = true;
+                    break;
+                case "array":
+                    if (Array.isArray(value))
+                        ok = true;
+                    break;
+                case "object":
+                    if (value instanceof Object && value.constructor === Object)
+                        ok = true;
+                    break;
+                // no default
+            }
+            if (ok) {
+                //first check const/enum which would be direct match
+                if (constraints.const !== undefined) {
+                    if (value === constraints.const)
+                        return i;
+                    else {
+                        mightmatch.push(i);
+                        continue
+                    }
+                }
+                if (constraints.enum !== undefined) {
+                    if (constraints.enum.indexOf(value) !== -1)
+                        return i;
+                    else {
+                        mightmatch.push(i);
+                        continue
+                    }
+                }
+                if (constraints.validate(value) === undefined)
+                    match.push(i);
+                else
+                    mightmatch.push(i);
+            }
+        }
+        // we didn't find enum/const match, so consider everything that validates
+        if (match.length !== 0)
+            return match[0];
+        // nothing validated - guess based on type
+        if (mightmatch.length !== 0)
+            return mightmatch[0];
+        return 0;
     }
 }
 
