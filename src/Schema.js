@@ -49,7 +49,7 @@ class Constraints {
                     }
                 }
                 if (constraints.additionalProperties !== undefined) {
-                    if(constraints.additionalProperties === false)
+                    if (constraints.additionalProperties === false)
                         this.additionalProperties = false
                     else
                         this.additionalProperties = new PseudoSchema(constraints.additionalProperties, fullschema.fullschema);
