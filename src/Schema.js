@@ -505,10 +505,12 @@ class PseudoSchema {
             this.replaceRef(oneanyOf[i]);
             let ed = mergeTypeConstraints(tmp, oneanyOf[i]);
             if (Array.isArray(ed.type)) {
-                console.error("Can't nest multieditors")
-                ed.type = ed.type[0];
+                for (let tmp of ed.type) {
+                    ret.push(new Editor(Object.assign(ed, { type: tmp }), this))
+                }
+            } else {
+                ret.push(new Editor(ed, this));
             }
-            ret.push(new Editor(ed, this));
         }
         return new MultiEditor(tmp, ret, this);
     }
