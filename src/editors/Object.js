@@ -245,12 +245,14 @@ class ObjectEditor extends Component {
   }
 
   addProperty = (id) => {
+    this.props.onEdit(this.props.state.path(), id, "add")
     let tmp = this.state.value
     tmp[id] = undefined;
     this.setState({ invalid: this.props.constraints.validate(this.state.value) });
   }
 
   delProperty = (id) => {
+    this.props.onEdit(this.props.state.path(), id, "del")
     let tmp = this.state.value
     delete tmp[id];
     this.setState({ invalid: this.props.constraints.validate(this.state.value) });
@@ -259,6 +261,7 @@ class ObjectEditor extends Component {
   setValue = (val) => {
     if (JSON.stringify(val) === JSON.stringify(this.state.value))
       return;
+    this.props.onEdit(this.props.state.path(), val, "set")
     this.setState({
       value: val,
       invalid: this.props.constraints.validate(val)
@@ -341,6 +344,7 @@ class ObjectEditor extends Component {
             constraints={this.propertyConstraint(key)}
             value={this.state.value[key]} valueChange={this.valueChange}
             editModal={this.props.editModal}
+            onEdit={this.props.onEdit}
           />);
       })
 

@@ -18,6 +18,8 @@ const arrayItemSource = {
 
         if (!monitor.didDrop())
             props.moveItem(droppedId, originalIndex)
+        else
+            props.onEdit([props.findKey(droppedId), originalIndex], "change")
     }
 }
 
@@ -49,6 +51,7 @@ class ArrayItem extends Component {
                     value={this.props.value} valueChange={this.props.valueChange}
                     short={this.props.short}
                     editModal={this.props.editModal}
+                    onEdit={this.props.onEdit}
                 />
                 <button key="arrayDelete"
                     type="button" className="btn btn-sm btn-outline-secondary mx-2 mb-3" tabIndex="-1"
@@ -136,6 +139,7 @@ class ArrayEditor extends Component {
     }
 
     handleAdd = () => {
+        this.props.onEdit(this.props.state.path(), undefined, "add")
         let tmp = this.state.value;
         tmp.push(undefined);
         tmp = this.state.keys;
@@ -144,6 +148,7 @@ class ArrayEditor extends Component {
     }
 
     handleDel = (index) => {
+        this.props.onEdit(this.props.state.path(), index, "del")
         let tmp = this.state.value;
         tmp.splice(index, 1);
         tmp = this.state.keys;
@@ -174,6 +179,10 @@ class ArrayEditor extends Component {
         return constraints.items;
     }
 
+    onEdit = (b, c) => {
+        this.props.onEdit(this.props.state.path(), b, c);
+    }
+
     render() {
         if (!this.state.open) {
             return "";
@@ -190,6 +199,7 @@ class ArrayEditor extends Component {
                 handleDel={this.handleDel}
                 short={this.props.constraints.format === "table"}
                 editModal={this.props.editModal}
+                onEdit={this.props.onEdit}
             />)
         );
 

@@ -11,6 +11,7 @@ class Checkbox extends Component {
 
     valueChange = (e) => {
         this.setState(prevState => {
+            this.props.onEdit(this.props.state.path(), !prevState.value);
             this.props.valueChange(this.props.id, !prevState.value);
             return { value: !prevState.value }
         });
@@ -84,6 +85,8 @@ class BooleanEditor extends Component {
                 value={this.state.value}
                 constraints={this.props.constraints}
                 valueChange={this.valueChange}
+                state={this.props.state}
+                onEdit={this.props.onEdit}
             />));
     }
 

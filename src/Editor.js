@@ -91,6 +91,7 @@ class BaseEditor extends Component {
       addPrecontrol={this.addPrecontrol} delPrecontrol={this.delPrecontrol}
       addPostcontrol={this.addPostcontrol} delPostcontrol={this.delPostcontrol}
       editModal={this.props.editModal}
+      onEdit={this.props.onEdit}
     />);
 
     if (this.props.short === true)
@@ -199,6 +200,9 @@ class JSONEditor extends Component {
     this.value = newValue
   }
 
+  onEdit = () => {
+  }
+
   render() {
     return (
       <React.Fragment>
@@ -208,6 +212,7 @@ class JSONEditor extends Component {
           constraints={this.pseudoschema}
           value={this.props.value} valueChange={this.valueChange}
           editModal={this.editModal}
+          onEdit={this.props.onEdit || this.onEdit}
         />
         <RawEditor ref={this.editModal} />
       </React.Fragment>

@@ -73,6 +73,7 @@ class InputEditor extends Component {
                 break;
             // no default
         }
+        this.props.onEdit(this.props.state.path(), value);
         this.props.valueChange(this.props.id, value);
         this.setState({
             value: textValue,
