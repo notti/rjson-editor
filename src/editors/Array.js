@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import { BaseEditor } from '../Editor.js';
 import Chevron from './Chevron.js';
-import plusImage from 'open-iconic/svg/plus.svg';
-import moveImage from 'open-iconic/svg/resize-height.svg';
-import xImage from 'open-iconic/svg/delete.svg';
+import { PlusSquare, Shuffle, Trash2 } from 'react-feather';
 import { DragSource, DropTarget, DragDropContext } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend';
 
@@ -56,12 +54,12 @@ class ArrayItem extends Component {
                 <button key="arrayDelete"
                     type="button" className="btn btn-sm btn-outline-secondary mx-2 mb-3" tabIndex="-1"
                     onClick={() => { this.props.handleDel(this.props.id) }}>
-                    <img src={xImage} alt="plus" className="mr-1 chevron" />Delete
+                    <Trash2 /> Delete
                 </button>
                 {this.props.moveable &&
                     connectDragSource(<button key="arrayMove"
                         type="button" className="btn btn-sm btn-outline-secondary mx-2 mb-3 move" tabIndex="-1">
-                        <img src={moveImage} alt="plus" className="mr-1 chevron" />Move
+                        <Shuffle /> Move
                     </button>)}
             </div>))
     }
@@ -120,7 +118,7 @@ class ArrayEditor extends Component {
         this.props.addPrecontrol("arrayChevron", -1000, <Chevron key="arrayChevron" handleHide={this.handleHide} open={this.state.open} />);
         this.props.addPostcontrol("arrayAppend", -1000, <button key="arrayAppend"
             type="button" className="btn btn-sm btn-outline-secondary mx-2" onClick={this.handleAdd}>
-            <img src={plusImage} alt="plus" className="mr-1 symbol" />Append item
+            <PlusSquare /> Append item
             </button>)
     }
 

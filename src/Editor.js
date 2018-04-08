@@ -3,8 +3,7 @@ import './Editor.css';
 import processSchema from './Schema.js';
 import State from './State.js';
 
-import okImage from 'open-iconic/svg/check.svg';
-import cancelImage from 'open-iconic/svg/x.svg';
+import { XCircle, CheckCircle } from 'react-feather';
 
 class BaseEditor extends Component {
   constructor(props) {
@@ -173,8 +172,8 @@ class RawEditor extends Component {
             </div>
             <div className="modal-body" id="ace"></div>
             <div className="modal-footer">
-              <button type="button" className="btn btn-primary" onClick={this.ok}><img src={okImage} alt="ok" className="mr-1 symbol" />Modify</button>
-              <button type="button" className="btn btn-secondary" onClick={this.close}><img src={cancelImage} alt="cancel" className="mr-1 symbol" />Cancel</button>
+              <button type="button" className="btn btn-primary" onClick={this.ok}><CheckCircle /> Modify</button>
+              <button type="button" className="btn btn-secondary" onClick={this.close}><XCircle /> Cancel</button>
             </div>
           </div>
         </div>

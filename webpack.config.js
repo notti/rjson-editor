@@ -44,6 +44,7 @@ module.exports = {
       },
     },
     'brace',
+    'react-feather'
   ],
   module: {
     strictExportPresence: true,

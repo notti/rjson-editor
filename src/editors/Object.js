@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { BaseEditor } from '../Editor.js';
 import Chevron from './Chevron.js';
-import editImage from 'open-iconic/svg/pencil.svg';
+import { Edit2 } from 'react-feather';
 
 class PropertyEditor extends Component {
   constructor(props) {
@@ -288,7 +288,7 @@ class ObjectEditor extends Component {
       <button type="button"
         key="editJSON"
         className="btn btn-sm btn-outline-secondary ml-2"
-        onClick={this.openModal}><img src={editImage} alt="edit" className="mr-1 symbol" />JSON</button>
+        onClick={this.openModal}><Edit2 /> JSON</button>
     ))
   }
 

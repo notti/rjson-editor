@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import chevronRight from 'open-iconic/svg/chevron-right.svg'
-import chevronBottom from 'open-iconic/svg/chevron-bottom.svg'
+import { ChevronRight, ChevronDown } from 'react-feather';
 
 
 class Chevron extends Component {
@@ -21,9 +20,9 @@ class Chevron extends Component {
 
     render() {
         const button = this.state.open ? (
-            <img src={chevronBottom} alt="close" className="chevron" />
+            <ChevronDown className="chevron" />
         ) : (
-                <img src={chevronRight} alt="open" className="chevron" />
+            <ChevronRight className="chevron" />
             );
 
         return (

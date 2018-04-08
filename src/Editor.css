@@ -47,12 +47,6 @@
   min-height: calc(1.8125rem + 2px);
 }
 
-.chevron {
-  width: 12px;
-  height: 12px;
-  vertical-align: middle;
-}
-
 .editor-chooser {
   width: auto;
 }
@@ -63,10 +57,6 @@
 
 .objectBody .invalid-feedback {
   display: initial;
-}
-
-.symbol {
-  vertical-align: baseline;
 }
 
 .array-item {
@@ -102,4 +92,19 @@
   left: 10%;
   right: 10%;
   width: initial;
+}
+
+.chevron {
+  color: black;
+  vertical-align: middle;
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+}
+
+button > svg {
+  vertical-align: middle;
+  width: 16px;
+  height: 16px;
+  stroke-width: 1;
 }
