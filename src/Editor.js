@@ -185,9 +185,6 @@ class JSONEditor extends Component {
   constructor(props) {
     super(props);
 
-    this.defaults = {
-      collapsed: false
-    }
     this.schema = props.schema;
     this.pseudoschema = processSchema(this.schema);
     this.editModal = React.createRef();
@@ -223,7 +220,7 @@ class JSONEditor extends Component {
       <React.Fragment>
         <BaseEditor
           state={this.state.state}
-          defaults={this.defaults}
+          defaults={this.props.defaults}
           constraints={this.pseudoschema}
           value={this.state.value} valueChange={this.valueChange}
           editModal={this.editModal}
