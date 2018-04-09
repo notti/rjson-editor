@@ -133,7 +133,7 @@ class RawEditor extends Component {
       this.obj.setValue(JSON.parse(this.session.getValue()));
       this.close();
     } catch (e) {
-      window.alert("Invalid JSON!");
+      window.alert("Invalid JSON! " + e);
     }
   }
 
