@@ -228,7 +228,11 @@ class ObjectEditor extends Component {
       } else {
         value = {};
         if (constraints.required !== undefined) {
-          for (let property of constraints.required) {
+          let properties = constraints.required;
+          if (nextProps.defaults.optionalPropertiesTrue === true) {
+            properties = Object.keys(constraints.properties);
+          }
+          for (let property of properties) {
             value[property] = undefined;
           }
         }
