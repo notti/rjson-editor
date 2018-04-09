@@ -45,6 +45,18 @@ class BooleanEditor extends Component {
         this.state = {
             value: false
         }
+
+        this.props.addPrecontrol("checkbox", 1000, (
+            <Checkbox
+                key="checkbox"
+                id={this.props.id}
+                ref={this.setRef}
+                value={this.state.value}
+                constraints={this.props.constraints}
+                valueChange={this.valueChange}
+                state={this.props.state}
+                onEdit={this.props.onEdit}
+            />));
     }
 
     valueChange = (id, value) => {
@@ -74,20 +86,6 @@ class BooleanEditor extends Component {
 
     setRef = (ref) => {
         this.checkbox = ref;
-    }
-
-    componentDidMount() {
-        this.props.addPrecontrol("checkbox", 1000, (
-            <Checkbox
-                key="checkbox"
-                id={this.props.id}
-                ref={this.setRef}
-                value={this.state.value}
-                constraints={this.props.constraints}
-                valueChange={this.valueChange}
-                state={this.props.state}
-                onEdit={this.props.onEdit}
-            />));
     }
 
     componentWillUnmount() {

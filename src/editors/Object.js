@@ -197,6 +197,23 @@ class ObjectEditor extends Component {
       value: {},
       invalid: undefined
     };
+
+    this.props.addPrecontrol("chevron", -1000, <Chevron key="objectChevron" handleHide={this.handleHide} open={this.state.open} />);
+    if (this.hasOptional)
+      this.props.addPostcontrol("properties", -1000, (
+        <PropertyButton
+          key="objectProperty"
+          getProperties={this.getProperties}
+          addProperty={this.addProperty} delProperty={this.delProperty}
+          hasCustom={this.hasCustom}
+          constraints={this.props.constraints}
+        />));
+    this.props.addPostcontrol("editJSON", -999, (
+      <button type="button"
+        key="editJSON"
+        className="btn btn-sm btn-outline-secondary ml-2"
+        onClick={this.openModal}><Edit2 /> JSON</button>
+    ))
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -271,25 +288,6 @@ class ObjectEditor extends Component {
 
   openModal = () => {
     this.props.editModal.current.open(this);
-  }
-
-  componentDidMount() {
-    this.props.addPrecontrol("chevron", -1000, <Chevron key="objectChevron" handleHide={this.handleHide} open={this.state.open} />);
-    if (this.hasOptional)
-      this.props.addPostcontrol("properties", -1000, (
-        <PropertyButton
-          key="objectProperty"
-          getProperties={this.getProperties}
-          addProperty={this.addProperty} delProperty={this.delProperty}
-          hasCustom={this.hasCustom}
-          constraints={this.props.constraints}
-        />));
-    this.props.addPostcontrol("editJSON", -999, (
-      <button type="button"
-        key="editJSON"
-        className="btn btn-sm btn-outline-secondary ml-2"
-        onClick={this.openModal}><Edit2 /> JSON</button>
-    ))
   }
 
   componentWillUnmount() {
