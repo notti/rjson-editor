@@ -88,7 +88,7 @@ class ArrayEditor extends Component {
             open: !props.defaults.collapsed,
             value: [],
             keys: [],
-            invalid: undefined
+            valid: props.constraints.validate([])
         };
 
         this.props.addPrecontrol("arrayChevron", -1000, <Chevron key="arrayChevron" handleHide={this.handleHide} open={this.state.open} />);

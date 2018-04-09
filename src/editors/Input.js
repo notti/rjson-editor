@@ -6,7 +6,7 @@ class InputEditor extends Component {
 
         this.state = {
             value: "",
-            invalid: undefined
+            valid: props.constraints.validate("")
         }
     }
 

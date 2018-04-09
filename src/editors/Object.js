@@ -195,7 +195,7 @@ class ObjectEditor extends Component {
     this.state = {
       open: !props.defaults.collapsed,
       value: {},
-      invalid: undefined
+      invalid: props.constraints.validate({})
     };
 
     this.props.addPrecontrol("chevron", -1000, <Chevron key="objectChevron" handleHide={this.handleHide} open={this.state.open} />);
