@@ -227,14 +227,12 @@ class ObjectEditor extends Component {
         value = JSON.parse(JSON.stringify(constraints.default));
       } else {
         value = {};
-        if (constraints.required !== undefined) {
-          let properties = constraints.required;
-          if (nextProps.defaults.optionalPropertiesTrue === true) {
-            properties = Object.keys(constraints.properties);
-          }
-          for (let property of properties) {
-            value[property] = undefined;
-          }
+        let properties = constraints.required || [];
+        if (nextProps.defaults.optionalPropertiesTrue === true) {
+          properties = Object.keys(constraints.properties);
+        }
+        for (let property of properties) {
+          value[property] = undefined;
         }
       }
       nextProps.valueChange(nextProps.id, value);
