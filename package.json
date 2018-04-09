@@ -1,7 +1,19 @@
 {
   "name": "rjson-editor",
-  "version": "0.1.0",
+  "version": "0.9.8",
   "private": true,
+  "author": {
+    "name": "Gernot Vormayr",
+    "email": "gvormayr@gmail.com"
+  },
+  "description": "JSON-Editor clone, written in react.js. See https://github.com/json-editor/json-editor for original.",
+  "bugs": "https://github.com/notti/rjson-editor/issues",
+  "license": "MIT",
+  "homepage": "https://github.com/notti/rjson-editor/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/notti/rjson-editor/"
+  },
   "main": "dist/rjson-editor.js",
   "devDependencies": {
     "babel-core": "^6.26.0",
