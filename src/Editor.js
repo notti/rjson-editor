@@ -71,7 +71,7 @@ class BaseEditor extends Component {
 
     if (Array.isArray(Editor)) {
       editors = (
-        <select value={this.state.editor} className="custom-select custom-select-sm mx-2 editor-chooser" onChange={this.handleEditorChange}>
+        <select value={this.state.editor} className="custom-select custom-select-sm ml-2 editor-chooser" onChange={this.handleEditorChange}>
           {Editor.map((editor, i) => (<option key={i} value={i}>{editor.title}</option>))}
         </select>
       );
