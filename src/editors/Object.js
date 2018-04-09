@@ -221,6 +221,12 @@ class ObjectEditor extends Component {
         className="btn btn-sm btn-outline-secondary ml-2"
         onClick={this.openModal}><Edit2 /> JSON</button>
     ))
+    if (typeof this.props.onConstruct === "function")
+      this.props.onConstruct(this.props.state.path(), {
+        getValue: this.getValue.bind(this),
+        setValue: this.setValue.bind(this),
+        addPrecontrol: this.props.addPrecontrol,
+        addPostcontrol: this.props.addPostcontrol});
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -287,12 +293,18 @@ class ObjectEditor extends Component {
   setValue = (val) => {
     if (JSON.stringify(val) === JSON.stringify(this.state.value))
       return;
+    if (!(val instanceof Object && val.constructor === Object))
+      return false;
     this.props.onEdit(this.props.state.path(), val, "set")
     this.setState({
       value: val,
       invalid: this.props.constraints.validate(val)
     });
     this.props.valueChange(this.props.id, val);
+  }
+
+  getValue = () => {
+    return this.state.value;
   }
 
   openModal = () => {
@@ -352,7 +364,7 @@ class ObjectEditor extends Component {
             constraints={this.propertyConstraint(key)}
             value={this.state.value[key]} valueChange={this.valueChange}
             editModal={this.props.editModal}
-            onEdit={this.props.onEdit}
+            onEdit={this.props.onEdit} onConstruct={this.props.onConstruct}
           />);
       })
 

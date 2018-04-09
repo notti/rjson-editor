@@ -49,7 +49,7 @@ class ArrayItem extends Component {
                     value={this.props.value} valueChange={this.props.valueChange}
                     short={this.props.short}
                     editModal={this.props.editModal}
-                    onEdit={this.props.onEdit}
+                    onEdit={this.props.onEdit} onConstruct={this.props.onConstruct}
                 />
                 <button key="arrayDelete"
                     type="button" className="btn btn-sm btn-outline-secondary mx-2 mb-3" tabIndex="-1"
@@ -86,10 +86,10 @@ class ArrayEditor extends Component {
 
         let collapsed = props.state.collapsed
         if (collapsed === undefined) {
-          collapsed = props.defaults.collapsed;
-          if (typeof collapsed === "function")
-            collapsed = collapsed(props.state.path());
-          props.state.collapsed = !!collapsed;
+            collapsed = props.defaults.collapsed;
+            if (typeof collapsed === "function")
+                collapsed = collapsed(props.state.path());
+            props.state.collapsed = !!collapsed;
         }
 
         this.state = {
@@ -104,6 +104,13 @@ class ArrayEditor extends Component {
             type="button" className="btn btn-sm btn-outline-secondary mx-2" onClick={this.handleAdd}>
             <PlusSquare /> Append item
             </button>)
+        if (typeof this.props.onConstruct === "function")
+            this.props.onConstruct(this.props.state.path(), {
+                getValue: this.getValue.bind(this),
+                setValue: this.setValue.bind(this),
+                addPrecontrol: this.props.addPrecontrol,
+                addPostcontrol: this.props.addPostcontrol
+            });
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
@@ -184,6 +191,24 @@ class ArrayEditor extends Component {
         return constraints.items;
     }
 
+    setValue = (val) => {
+        if (JSON.stringify(val) === JSON.stringify(this.state.value))
+            return;
+        if (!Array.isArray(val))
+            return;
+        this.props.onEdit(this.props.state.path(), val, "set")
+        this.setState({
+            value: val,
+            keys: val.map((value, index) => (index)),
+            valid: this.props.constraints.validate(val)
+        });
+        this.props.valueChange(this.props.id, val);
+    }
+
+    getValue = () => {
+        return this.state.value;
+    }
+
     onEdit = (b, c) => {
         this.props.onEdit(this.props.state.path(), b, c);
     }
@@ -204,7 +229,7 @@ class ArrayEditor extends Component {
                 handleDel={this.handleDel}
                 short={this.props.constraints.format === "table"}
                 editModal={this.props.editModal}
-                onEdit={this.props.onEdit}
+                onEdit={this.props.onEdit} onConstruct={this.props.onConstruct}
             />)
         );
 

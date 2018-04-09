@@ -57,6 +57,13 @@ class BooleanEditor extends Component {
                 state={this.props.state}
                 onEdit={this.props.onEdit}
             />));
+        if (typeof this.props.onConstruct === "function")
+            this.props.onConstruct(this.props.state.path(), {
+                getValue: this.getValue.bind(this),
+                setValue: this.setValue.bind(this),
+                addPrecontrol: this.props.addPrecontrol,
+                addPostcontrol: this.props.addPostcontrol
+            });
     }
 
     valueChange = (id, value) => {
@@ -95,6 +102,25 @@ class BooleanEditor extends Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevState.value !== this.state.value)
             this.checkbox.updateState(this.state.value)
+    }
+
+    setValue = (val) => {
+        if (val === this.state.value)
+            return;
+        if (typeof val !== "boolean")
+            return false;
+        if (this.props.constraints.const !== undefined)
+            return false; //not setable
+        this.props.onEdit(this.props.state.path(), val, "set")
+        this.setState({
+            value: val
+        });
+        this.props.valueChange(this.props.id, val);
+        return true;
+    }
+
+    getValue = () => {
+        return this.state.value;
     }
 
     render() {
