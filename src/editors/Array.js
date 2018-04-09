@@ -84,8 +84,16 @@ class ArrayEditor extends Component {
     constructor(props) {
         super(props);
 
+        let collapsed = props.state.collapsed
+        if (collapsed === undefined) {
+          collapsed = props.defaults.collapsed;
+          if (typeof collapsed === "function")
+            collapsed = collapsed(props.state.path());
+          props.state.collapsed = !!collapsed;
+        }
+
         this.state = {
-            open: !props.defaults.collapsed,
+            open: !collapsed,
             value: [],
             keys: [],
             valid: props.constraints.validate([])
@@ -127,6 +135,7 @@ class ArrayEditor extends Component {
 
     handleHide = (open) => {
         this.setState({ open: open });
+        this.props.state.collapsed = !open;
     }
 
     valueChange = (key, newValue) => {
