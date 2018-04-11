@@ -5,7 +5,7 @@ class InputEditor extends Component {
         super(props);
 
         this.state = {
-            value: "",
+            value: props.constraints.const || "",
             valid: props.constraints.validate("")
         }
         if (typeof this.props.onConstruct === "function")

@@ -43,7 +43,7 @@ class BooleanEditor extends Component {
         this.checkbox = null;
 
         this.state = {
-            value: false
+            value: props.constraints.const || false
         }
 
         this.props.addPrecontrol("checkbox", 1000, (
