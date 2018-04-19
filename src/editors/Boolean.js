@@ -42,8 +42,21 @@ class BooleanEditor extends Component {
 
         this.checkbox = null;
 
+        let value = props.value;
+        if (props.constraints.const !== undefined && value !== props.constraints.const) {
+            value = props.constraints.const;
+            props.valueChange(props.id, value);
+        }
+        if (value === undefined) {
+            if (props.constraints.default !== undefined)
+                value = props.constraints.default;
+            else
+                value = false;
+            props.valueChange(props.id, value);
+        }
+
         this.state = {
-            value: props.constraints.const || false
+            value: value
         }
 
         this.props.addPrecontrol("checkbox", 1000, (
