@@ -4,6 +4,12 @@ class InputEditor extends Component {
     constructor(props) {
         super(props);
 
+        if (props.constraints.const !== undefined && props.constraints.const !== props.value) {
+            props.valueChange(props.id, props.constraints.const);
+            if (props.value !== undefined)
+                this.props.onEdit(props.state.path(), props.constraints.const, "set");
+        }
+
         this.state = {
             value: props.constraints.const || "",
             valid: props.constraints.validate("")
