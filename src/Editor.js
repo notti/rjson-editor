@@ -9,11 +9,23 @@ class BaseEditor extends Component {
   constructor(props) {
     super(props);
 
-    this.editor = props.constraints.getEditor();
     this.state = {
-      editor: this.editor.idForValue(props.value),
+      editor: props.constraints.getEditor(),
+      editorId: 0,
+      value: undefined,
       precontrol: {},
       postcontrol: {}
+    };
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    console.log(nextProps.state.path(), nextProps.value, prevState.value);
+    if (nextProps.value === prevState.value) {
+      return null;
+    }
+    return {
+        editorId: prevState.editor.idForValue(nextProps.value),
+        value: nextProps.value
     };
   }
 
@@ -50,42 +62,43 @@ class BaseEditor extends Component {
   }
 
   handleEditorChange = (e) => {
-    this.setState({ editor: e.target.value });
+    this.setState({ editorId: e.target.value });
   }
 
   valueChange = (key, newValue) => {
     this.props.valueChange(key, newValue);
+    this.setState({ value: newValue });
   }
 
   render() {
     const precontrol = Object.values(this.state.precontrol).sort((a, b) => (a.order - b.order)).map(val => (val.control));
     const postcontrol = Object.values(this.state.postcontrol).sort((a, b) => (a.order - b.order)).map(val => (val.control));
-    let Editor = this.editor.component();
-    let constraints = this.editor.constraints;
+    let Editor = this.state.editor.component();
+    let constraints = this.state.editor.constraints;
     let editors = "";
     if (Editor === undefined)
       return (
         <div className="form-group">
-          <label>{this.editor.type}</label>
+          <label>{this.state.editor.type}</label>
         </div>);
 
     if (Array.isArray(Editor)) {
       editors = (
-        <select value={this.state.editor} className="custom-select custom-select-sm ml-2 editor-chooser" onChange={this.handleEditorChange}>
+        <select value={this.state.editorId} className="custom-select custom-select-sm ml-2 editor-chooser" onChange={this.handleEditorChange}>
           {Editor.map((editor, i) => (<option key={i} value={i}>{editor.title}</option>))}
         </select>
       );
-      constraints = Editor[this.state.editor].constraints;
-      Editor = Editor[this.state.editor].component();
+      constraints = Editor[this.state.editorId].constraints;
+      Editor = Editor[this.state.editorId].component();
     }
 
     const editor = (<Editor
       state={this.props.state}
-      key={this.state.editor}
+      key={this.state.editorId}
       defaults={this.props.defaults}
       id={this.props.id}
       constraints={constraints}
-      value={this.props.value} valueChange={this.valueChange}
+      value={this.state.value} valueChange={this.valueChange}
       addPrecontrol={this.addPrecontrol} delPrecontrol={this.delPrecontrol}
       addPostcontrol={this.addPostcontrol} delPostcontrol={this.delPostcontrol}
       editModal={this.props.editModal}
