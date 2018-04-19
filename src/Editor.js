@@ -19,7 +19,6 @@ class BaseEditor extends Component {
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
-    console.log(nextProps.state.path(), nextProps.value, prevState.value);
     if (nextProps.value === prevState.value) {
       return null;
     }
