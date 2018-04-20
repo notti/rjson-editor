@@ -34,7 +34,10 @@ class InputEditor extends Component {
         if (c !== undefined && textValue !== c) {
             textValue = value = c;
             nextProps.valueChange(nextProps.id, textValue);
-        } else if (textValue === undefined) {
+        } else if (textValue === undefined || !(
+            (t === "number" && typeof textValue === "number") ||
+            (t === "string" && typeof textValue === "string") ||
+            (t === "integer" && (Number.isInteger(textValue))))) {
             if (d !== undefined)
                 textValue = value = d;
             else {

@@ -120,7 +120,7 @@ class ArrayEditor extends Component {
 
         let value = nextProps.value;
         const constraints = nextProps.constraints;
-        if (value === undefined) {
+        if (value === undefined || !Array.isArray(value)) {
             if (constraints.default !== undefined) {
                 value = JSON.parse(JSON.stringify(constraints.default));
             } else {

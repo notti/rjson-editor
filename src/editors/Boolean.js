@@ -93,7 +93,7 @@ class BooleanEditor extends Component {
             value = nextProps.constraints.const;
             nextProps.valueChange(nextProps.id, value);
         }
-        if (value === undefined) {
+        if (value === undefined || typeof value !== "boolean") {
             if (nextProps.constraints.default !== undefined)
                 value = nextProps.constraints.default;
             else {

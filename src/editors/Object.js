@@ -235,7 +235,7 @@ class ObjectEditor extends Component {
     }
     const constraints = nextProps.constraints;
     let value = nextProps.value;
-    if (value === undefined) {
+    if (value === undefined || !(value instanceof Object && value.constructor === Object)) {
       if (constraints.default !== undefined) {
         value = JSON.parse(JSON.stringify(constraints.default));
       } else {
