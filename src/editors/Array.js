@@ -233,15 +233,15 @@ class ArrayEditor extends Component {
             />)
         );
 
-        const invalid = this.state.invalid;
+        const valid = this.state.valid;
         let classes = "objectBody mx-2 px-2 border border-top-0 rounded-bottom";
-        if (invalid !== undefined)
+        if (valid !== undefined)
             classes += " is-invalid";
 
         return connectDropTarget(
             <div className={classes}>
                 {subEditors.length === 0 && <span className="badge badge-secondary mx-1 my-1">No items</span>}
-                {invalid !== undefined && <div className="invalid-feedback">{invalid}</div>}
+                {valid !== undefined && <div className="invalid-feedback">{valid}</div>}
                 {subEditors}
             </div>
         );
