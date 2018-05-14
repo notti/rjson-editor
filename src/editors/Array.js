@@ -156,7 +156,7 @@ class ArrayEditor extends Component {
         tmp.push(undefined);
         tmp = this.state.keys;
         tmp.push(tmp.length === 0 ? 0 : tmp.reduce((max, val) => val > max ? val : max, this.state.keys[0]) + 1);
-        this.setState({ invalid: this.props.constraints.validate(this.state.value) })
+        this.setState({ valid: this.props.constraints.validate(this.state.value) })
     }
 
     handleDel = (index) => {
@@ -165,7 +165,7 @@ class ArrayEditor extends Component {
         tmp.splice(index, 1);
         tmp = this.state.keys;
         tmp.splice(index, 1);
-        this.setState({ invalid: this.props.constraints.validate(this.state.value) })
+        this.setState({ valid: this.props.constraints.validate(this.state.value) })
     }
 
     findKey = (key) => {
