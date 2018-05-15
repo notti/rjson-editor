@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { BaseEditor } from '../Editor.js';
 import Chevron from './Chevron.js';
 import { Edit2 } from 'react-feather';
+import { EmptySchema } from '../Schema.js';
 
 class PropertyEditor extends Component {
   constructor(props) {
@@ -187,8 +188,7 @@ class ObjectEditor extends Component {
     super(props);
 
     const required = props.constraints.required || [];
-    this.hasCustom = props.constraints.patternProperties !== undefined ||
-      (props.constraints.additionalProperties !== undefined && props.constraints.additionalProperties !== false)
+    this.hasCustom = props.constraints.additionalProperties !== false;
     this.hasOptional = this.hasCustom ||
       Object.keys(props.constraints.properties || {}).filter(item => (required.indexOf(item) < 0)).length !== 0;
 
@@ -242,7 +242,7 @@ class ObjectEditor extends Component {
         value = {};
         let properties = constraints.required || [];
         if (nextProps.defaults.optionalPropertiesTrue === true) {
-          properties = Object.keys(constraints.properties);
+          properties = Object.keys(constraints.properties || {});
         }
         for (let property of properties) {
           value[property] = undefined;
@@ -340,6 +340,7 @@ class ObjectEditor extends Component {
     }
     if (constraints.additionalProperties !== undefined)
       return constraints.additionalProperties;
+    return new EmptySchema();
   }
 
   render() {

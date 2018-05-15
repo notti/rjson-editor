@@ -566,8 +566,17 @@ class PseudoSchema {
     }
 }
 
+class EmptySchema {
+    getEditor() {
+        return new MultiEditor(["null", "boolean", "number", "string", "array", "object"].map(type =>
+            new Editor({ type: type }, {})
+        ));
+    }
+}
+
 function processSchema(schema) {
     return new PseudoSchema(schema);
 }
 
 export default processSchema;
+export { EmptySchema };
