@@ -105,9 +105,7 @@ class Editor {
 }
 
 class MultiEditor {
-    constructor(schema, editors, fullschema) {
-        this.title = schema.title || schema.type;
-        this.description = schema.description;
+    constructor(editors) {
         this.editors = editors;
     }
 
@@ -300,208 +298,151 @@ const constraintTypes = {
     }
 }
 
-function mergeTypeConstraints(a, b) {
-    let ret = mergeConstraints(a, b);
-    if (a.type !== undefined) {
-        let alist = [].concat(a.type);
-        if (b.type !== undefined) {
-            let tmp = [].concat(b.type).filter(val => alist.indexOf(val) >= 0);
-            if (tmp.length === 0) {
-                console.error("unsatisfiable schema; can't match types '" + a.type + "' and '" + b.type + "'")
-                ret.type = a.type;
-            } else if (tmp.length > 1) {
-                ret.type = tmp;
-            } else {
-                ret.type = tmp[0];
-            }
-        } else {
-            ret.type = a.type;
-        }
-    } else {
-        if (b.type === undefined) {
-            console.error("need at least a type!")
-        } else {
-            ret.type = b.type;
-        }
-    }
-    if (a.title !== undefined) {
-        ret.title = a.title;
-    }
-    if (b.title !== undefined) {
-        ret.title = b.title;
-    }
-    if (a.description !== undefined) {
-        ret.description = a.description;
-    }
-    if (b.description !== undefined) {
-        ret.description = b.description;
-    }
-    return ret
+class AlwaysFalse {
 }
 
-const mustBeSchema = [
-    "additionalItems",
-    "additionalProperties",
-    "contains"
-]
+function resolveSubset(a, b) {
+    if (!Array.isArray(a))
+        a = [a];
+    if (!Array.isArray(b))
+        b = [b];
+    let ret = a.filter(val => b.indexOf(val) >= 0);
+    if (ret.length === 0)
+        throw new AlwaysFalse();
+    return ret;
+}
 
-const minMerge = [
-    "exclusiveMaximum",
-    "maximum",
-    "maxItems",
-    "maxLength",
-    "maxProperties"
-]
+function resolveConcat(a, b) {
+    return [].concat(a, b)
+}
 
-const maxMerge = [
-    "exclusiveMinimum",
-    "minimum",
-    "minItems",
-    "minLength",
-    "minProperties"
-]
+function resolveNo() {
+    throw new AlwaysFalse();
+}
 
-function mergeConstraints(a, b) {
+function resolveItems(a, b, fullschema) {
+    if (Array.isArray(a)) {
+        if (Array.isArray(b)) {
+            if (a.length !== b.length) {
+                throw new AlwaysFalse();
+            }
+            let ret = [];
+            for (let i = 0; i < a.length; i++) {
+                ret[i] = resolveSchema(a[i], b[i], fullschema);
+            }
+            return ret;
+        }
+        let ret = [];
+        for (let i = 0; i < a.length; i++) {
+            ret[i] = resolveSchema(a[i], b, fullschema);
+        }
+        return ret;
+    }
+    if (Array.isArray(b)) {
+        let ret = [];
+        for (let i = 0; i < b.length; i++) {
+            ret[i] = resolveSchema(a, b[i], fullschema);
+        }
+        return ret;
+    }
+    return resolveSchema(a, b, fullschema);
+}
+
+function resolveProperties(a, b, fullschema) {
+    let ret = Object.assign({}, a, b)
+    let equalkeys = Object.keys(a || {})
+    equalkeys = Object.keys(b || {}).filter(val => equalkeys.indexOf(val) >= 0)
+    // handle additionalProperties for non-equal keys
+    for (let equal of equalkeys) {
+        ret[equal] = resolveSchema(a[equal], b[equal], fullschema)
+    }
+    return ret;
+}
+
+function resolveB(a, b) {
+    return b;
+}
+
+const resolveConstraint = {
+    //general
+    "type": resolveSubset,
+    "enum": resolveSubset,
+    "const": resolveNo,
+    "format": resolveNo,
+    "title": resolveB,
+    "allOf": resolveConcat,
+    "anyOf": resolveSubset,
+    "oneOf": resolveSubset,
+    "description": resolveB,
+    //null
+    //boolean
+    //number
+    "multipleOf": resolveConcat,
+    "maximum": Math.min,
+    "exclusiveMaximum": Math.min,
+    "minimum": Math.max,
+    "exclusiveMinimum": Math.max,
+    //string
+    "maxLength": Math.min,
+    "minLength": Math.max,
+    "pattern": resolveConcat,
+    //array
+    "items": resolveItems,
+    "additionalItems": resolveSchema,
+    "maxItems": Math.min,
+    "minItems": Math.max,
+    "uniqueItems": resolveNo,
+    "contains": resolveSchema,
+    //object
+    "maxProperties": Math.min,
+    "minProperties": Math.max,
+    "required": resolveSubset,
+    "properties": resolveProperties,
+    "patternProperties": resolveProperties,
+    "additionalProperties": resolveSchema,
+    //dependencies
+    "propertyNames": resolveSchema,
+
+    //custom
+    "propertyOrder": resolveB,
+};
+
+const knownConstraints = Object.keys(resolveConstraint);
+
+
+// go through every key and call resolve function in case both are there;
+// otherwise use one or the other
+function resolveSchema(a, b, fullschema) {
     let ret = {};
-    for (let i = i; i < mustBeSchema.length; i++) {
-        if (a[mustBeSchema[i]] !== undefined && b[mustBeSchema[i]] !== undefined) {
-            ret[mustBeSchema[i]] = mergeTypeConstraints(a, b)
-        } else if (a[mustBeSchema[i]] !== undefined || b[mustBeSchema[i]] !== undefined) {
-            ret[mustBeSchema[i]] = a[mustBeSchema[i]] || b[mustBeSchema[i]];
-        }
-    }
-    if (a.const !== undefined && b.const !== undefined) {
-        if (a.const !== b.const) {
-            console.error("can't merge schemas; non equal consts")
-        }
-        ret.const = a.const;
-    } else if (a.const !== undefined || b.const !== undefined) {
-        ret.const = a.const || b.const;
-    }
-    if (a.dependencies !== undefined || b.dependencies !== undefined) {
-        ret.dependencies = Object.assign({}, b.dependencies, a.dependencies)
-        let equalkeys = Object.keys(a || {})
-        equalkeys = Object.keys(b || {}).filter(val => equalkeys.indexOf(val) >= 0)
-        for (let i = 0; i < equalkeys.length; i++) {
-            if (Array.isArray(a.dependencies[equalkeys[i]])) {
-                if (Array.isArray(b.dependencies[equalkeys[i]])) {
-                    ret.dependencies[equalkeys[i]] = a.dependencies[equalkeys[i]].concat(b.dependencies[equalkeys[i]])
-                } else {
-                    console.error("Can only merge dependencies of same type")
-                    ret.dependencies[equalkeys[i]] = a.dependencies[equalkeys[i]];
-                }
-            } else {
-                if (Array.isArray(b.dependencies[equalkeys[i]])) {
-                    console.error("Can only merge dependencies of same type")
-                    ret.dependencies[equalkeys[i]] = a.dependencies[equalkeys[i]];
-                } else {
-                    ret.dependencies[equalkeys[i]] = mergeTypeConstraints(a.dependencies[equalkeys[i]], b.dependencies[equalkeys[i]])
-                }
-            }
-        }
-    }
-    if (a.enum !== undefined && b.enum !== undefined) {
-        ret.enum = b.enum.filter(val => a.enum.indexOf(val) >= 0)
-    } else if (a.enum !== undefined || b.enum !== undefined) {
-        ret.enum = a.enum || b.enum;
-    }
-    for (let i = i; i < minMerge.length; i++) {
-        if (a[minMerge[i]] !== undefined && b[minMerge[i]] !== undefined) {
-            ret[minMerge[i]] = Math.min(a[minMerge[i]], b[minMerge[i]]);
-        } else if (a[minMerge[i]] !== undefined || b[minMerge[i]] !== undefined) {
-            ret[minMerge[i]] = a[minMerge[i]] || b[minMerge[i]];
-        }
-    }
-    for (let i = i; i < maxMerge.length; i++) {
-        if (a[maxMerge[i]] !== undefined && b[maxMerge[i]] !== undefined) {
-            ret[maxMerge[i]] = Math.max(a[maxMerge[i]], b[maxMerge[i]]);
-        } else if (a[maxMerge[i]] !== undefined || b[maxMerge[i]] !== undefined) {
-            ret[maxMerge[i]] = a[maxMerge[i]] || b[maxMerge[i]];
-        }
-    }
-    if (a.format !== undefined && b.format !== undefined) {
-        if (a.format !== b.format) {
-            console.error("mismatching format during merge!")
-        }
-        ret.format = a.format;
-    } else if (a.format !== undefined || b.format !== undefined) {
-        ret.format = a.format || b.format;
-    }
-    if (a.items !== undefined && b.items !== undefined) {
-        if (Array.isArray(a.items)) {
-            ret.items = [];
-            if (Array.isArray(b.items)) {
-                if (a.items.length !== b.items.length) {
-                    console.error("items must be same length!")
-                    ret.items = a.items;
-                } else {
-                    for (let i = 0; i < a.items.length; i++) {
-                        ret.items[i] = mergeTypeConstraints(a.items[i], b.items[i]);
+    fullschema.replaceRef(a);
+    fullschema.replaceRef(b);
+    try {
+        for (let constraint of knownConstraints) {
+            let x = a[constraint];
+            let y = b[constraint]
+            if (x !== undefined) {
+                if (y !== undefined) {
+                    if (x === y) {
+                        ret[constraint] = x;
+                    } else if (JSON.stringify(x) === JSON.stringify(y)) {
+                        ret[constraint] = x;
+                    } else {
+                        ret[constraint] = resolveConstraint[constraint](x, y, fullschema);
                     }
+                } else {
+                    ret[constraint] = x;
                 }
-            } else {
-                for (let i = 0; i < a.items.length; i++) {
-                    ret.items[i] = mergeTypeConstraints(a.items[i], b.items);
-                }
+            } else if (y !== undefined) {
+                ret[constraint] = y;
             }
+        }
+    } catch (e) {
+        if (e instanceof AlwaysFalse) {
+            return false;
         } else {
-            ret.items = [];
-            if (Array.isArray(b.items)) {
-                for (let i = 0; i < b.items.length; i++) {
-                    ret.items[i] = mergeTypeConstraints(a.items, b.items[i]);
-                }
-            }
-        }
-    } else if (a.items !== undefined || b.items !== undefined) {
-        ret.items = a.items || b.items;
-    }
-    if (a.multipleOf !== undefined && b.multipleOf !== undefined) {
-        ret.multipleOf = [].concat(a.multipleOf, b.multipleOf);
-    } else if (a.multipleOf !== undefined || b.multipleOf !== undefined) {
-        ret.multipleOf = a.multipleOf || b.multipleOf;
-    }
-    if (a.pattern !== undefined || b.pattern !== undefined) {
-        ret.pattern = [].concat(a.pattern || [], b.pattern || []);
-    }
-    if (a.patternProperties !== undefined || b.patternProperties !== undefined) {
-        ret.patternProperties = Object.assign({}, b.patternProperties, a.patternProperties)
-        let equalkeys = Object.keys(a || {})
-        equalkeys = Object.keys(b || {}).filter(val => equalkeys.indexOf(val) >= 0)
-        for (let i = 0; i < equalkeys.length; i++) {
-            ret.patternProperties[equalkeys[i]] = mergeTypeConstraints(a.patternProperties[equalkeys[i]], b.patternProperties[equalkeys[i]])
+            throw e;
         }
     }
-    if (a.properties !== undefined || b.properties !== undefined) {
-        ret.properties = Object.assign({}, b.properties, a.properties)
-        let equalkeys = Object.keys(a || {})
-        equalkeys = Object.keys(b || {}).filter(val => equalkeys.indexOf(val) >= 0)
-        for (let i = 0; i < equalkeys.length; i++) {
-            ret.properties[equalkeys[i]] = mergeTypeConstraints(a.properties[equalkeys[i]], b.properties[equalkeys[i]])
-        }
-    }
-    if (a.propertyNames !== undefined && b.propertyNames !== undefined) {
-        ret.propertyNames = mergeConstraints(a, b)
-    } else if (a.propertyNames !== undefined || b.propertyNames !== undefined) {
-        ret.propertyNames = a.propertyNames || b.propertyNames;
-    }
-    if (a.required !== undefined && b.required !== undefined) {
-        ret.required = b.required.filter(val => a.required.indexOf(val) >= 0)
-    } else if (a.required !== undefined || b.required !== undefined) {
-        ret.required = a.required || b.required;
-    }
-    if (a.uniqueItems !== undefined && b.uniqueItems !== undefined) {
-        if (a.uniqueItems !== b.uniqueItems)
-            console.error("Can't merge uniqueItems")
-        ret.uniqueItems = a.uniqueItems;
-    } else if (a.uniqueItems !== undefined) {
-        ret.uniqueItems = a.uniqueItems;
-    } else if (b.uniqueItems !== undefined) {
-        ret.uniqueItems = b.uniqueItems;
-    }
-    if (b.propertyOrder !== undefined)
-        ret.propertyOrder = b.propertyOrder;
-    if (a.propertyOrder !== undefined)
-        ret.propertyOrder = a.propertyOrder;
     return ret;
 }
 
@@ -540,26 +481,53 @@ class PseudoSchema {
         }
     }
 
-    getEditor() {
-        this.replaceRef(this.schema)
+    flatten(part, main) {
+        let tmp = Object.assign({}, part);
+        if (main === true)
+            delete tmp.title;
+        this.replaceRef(tmp);
 
-        let tmp = Object.assign({}, this.schema);
-        if (this.schema.allOf !== undefined) {
-            for (let i = 0; i < this.schema.allOf.length; i++) {
-                this.replaceRef(this.schema.allOf[i])
-                tmp = mergeTypeConstraints(tmp, this.schema.allOf[i])
+        if (part.allOf !== undefined) {
+            let allOf = part.allOf;
+            delete part.allOf;
+            for (let subpart of allOf) {
+                tmp = resolveSchema(tmp, this.flatten(subpart), this);
+                if (tmp === false) {
+                    return false;
+                }
             }
         }
-        delete tmp.title;
-        delete tmp.description;
-        if (this.schema.title !== undefined) {
-            tmp.title = this.schema.title;
+
+        let oneanyOf = (tmp.oneOf || []).concat(tmp.anyOf || []);
+        if (oneanyOf.length === 0)
+            return tmp;
+
+        delete tmp.oneOf;
+        delete tmp.anyOf;
+
+        let ret = [];
+
+        for (let variant of oneanyOf) {
+            variant = this.flatten(variant);
+            if (!Array.isArray(variant))
+                ret.push(resolveSchema(tmp, variant, this));
+            else
+                for (let subvariant of variant)
+                    ret.push(resolveSchema(tmp, subvariant, this));
         }
-        if (this.schema.description !== undefined) {
-            tmp.description = this.schema.description;
-        }
-        let oneanyOf = (this.schema.oneOf || []).concat(this.schema.anyOf || []);
-        if (oneanyOf.length === 0) {
+
+        ret = ret.filter(val => val !== false);
+
+        return ret
+    }
+
+    getEditor() {
+        let tmp = this.flatten(this.schema, true);
+
+        if (tmp === false)
+            throw "Schema can't be fulfilled";
+
+        if (!Array.isArray(tmp)) {
             if (!Array.isArray(tmp.type)) {
                 return new Editor(tmp, this);
             } else {
@@ -571,26 +539,30 @@ class PseudoSchema {
                 for (let i = 0; i < tmp.type.length; i++) {
                     let ed = Object.assign({}, tmp)
                     ed.type = tmp.type[i];
-                    delete ed.title;
+                    ed.title = tmp.type[i];
                     delete ed.description;
                     ret.push(new Editor(ed, this));
                 }
-                return new MultiEditor(tmp, ret, this);
+                return new MultiEditor(ret);
             }
         }
         let ret = [];
-        for (let i = 0; i < oneanyOf.length; i++) {
-            this.replaceRef(oneanyOf[i]);
-            let ed = mergeTypeConstraints(tmp, oneanyOf[i]);
-            if (Array.isArray(ed.type)) {
-                for (let tmp of ed.type) {
-                    ret.push(new Editor(Object.assign(ed, { type: tmp }), this))
+        for (let part of tmp) {
+            if (Array.isArray(part.type)) {
+                for (let tmp of part.type) {
+                    let title = part.title;
+                    if (title === undefined) {
+                        title = tmp;
+                    } else {
+                        title += " - " + tmp;
+                    }
+                    ret.push(new Editor(Object.assign(part, { type: tmp, title: title }), this))
                 }
             } else {
-                ret.push(new Editor(ed, this));
+                ret.push(new Editor(part, this));
             }
         }
-        return new MultiEditor(tmp, ret, this);
+        return new MultiEditor(ret);
     }
 }
 
