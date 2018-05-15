@@ -527,6 +527,9 @@ class PseudoSchema {
         if (tmp === false)
             throw "Schema can't be fulfilled";
 
+        if (tmp === true || Object.keys(tmp).length === 0 && tmp.constructor === Object)
+            return (new EmptySchema).getEditor();
+
         if (!Array.isArray(tmp)) {
             if (!Array.isArray(tmp.type)) {
                 return new Editor(tmp, this);
