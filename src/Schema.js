@@ -43,16 +43,15 @@ class Constraints {
                 this.required = constraints.required;
                 if (constraints.properties !== undefined) {
                     this.properties = {}
-                    let keys = Object.keys(constraints.properties);
-                    for (let i = 0; i < keys.length; i++) {
-                        this.properties[keys[i]] = new PseudoSchema(constraints.properties[keys[i]], fullschema.fullschema);
+                    const required = new Set(this.required || []);
+                    for (let key of Object.keys(constraints.properties)) {
+                        this.properties[key] = new PseudoSchema(constraints.properties[key], fullschema.fullschema);
                     }
                 }
                 if (constraints.patternProperties !== undefined) {
                     this.patternProperties = {}
-                    let keys = Object.keys(constraints.patternProperties);
-                    for (let i = 0; i < keys.length; i++) {
-                        this.patternProperties[keys[i]] = new PseudoSchema(constraints.patternProperties[keys[i]], fullschema.fullschema);
+                    for (let key of Object.keys(constraints.patternProperties)) {
+                        this.patternProperties[key] = new PseudoSchema(constraints.patternProperties[key], fullschema.fullschema);
                     }
                 }
                 if (constraints.additionalProperties !== undefined) {
@@ -76,15 +75,14 @@ class Constraints {
             });
         if (type === "integer") type = "number";
         const c = constraintTypes[type];
-        const k = Object.keys(c);
-        for (let i = 0; i < k.length; i++)
-            if (constraints[k[i]] !== undefined)
-                this.constraints.push(c[k[i]](constraints[k[i]]));
+        for (let key of Object.keys(c))
+            if (constraints[key] !== undefined)
+                this.constraints.push(c[key](constraints[key]));
     }
 
     validate(val) {
-        for (let i = 0; i < this.constraints.length; i++) {
-            let ret = this.constraints[i](val);
+        for (let constraint of this.constraints) {
+            let ret = constraint(val);
             if (ret !== undefined) {
                 return ret;
             }
@@ -192,13 +190,13 @@ const constraintTypes = {
     "null": {},
     "boolean": {},
     "number": {
-        "multipleOf": constraint => {
-            if (!Array.isArray(constraint))
-                constraint = [constraint];
+        "multipleOf": constraints => {
+            if (!Array.isArray(constraints))
+                constraints = [constraints];
             return val => {
-                for (let i = 0; i < constraint.length; i++) {
-                    if (val % constraint[i] !== 0)
-                        return "Must be a multiple of " + constraint[i];
+                for (let constraint of constraints) {
+                    if (val % constraint !== 0)
+                        return "Must be a multiple of " + constraint;
                 }
             }
         },
@@ -240,13 +238,13 @@ const constraintTypes = {
                     return "Length must be greater than or equal to " + constraint;
             }
         },
-        "pattern": constraint => {
-            if (!Array.isArray(constraint))
-                constraint = [constraint];
+        "pattern": constraints => {
+            if (!Array.isArray(constraints))
+                constraints = [constraints];
             return val => {
-                for (let i = 0; i < constraint.length; i++) {
-                    if (!RegExp(constraint[i]).test(val))
-                        return "Must match pattern '" + constraint[i] + "'";
+                for (let constraint of constraints) {
+                    if (!RegExp(constraint).test(val))
+                        return "Must match pattern '" + constraint + "'";
                 }
             }
         },
