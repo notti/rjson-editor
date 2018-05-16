@@ -192,12 +192,9 @@ class ObjectEditor extends Component {
     this.hasOptional = this.hasCustom ||
       Object.keys(props.constraints.properties || {}).filter(item => (required.indexOf(item) < 0)).length !== 0;
 
-    let collapsed = props.state.collapsed
+    let collapsed = props.state.collapsed;
     if (collapsed === undefined) {
-      collapsed = props.defaults.collapsed;
-      if (typeof collapsed === "function")
-        collapsed = collapsed(props.state.path());
-      props.state.collapsed = !!collapsed;
+      collapsed = props.state.collapsed = props.defaults.collapsed;
     }
     this.state = {
       open: !collapsed,
@@ -357,10 +354,11 @@ class ObjectEditor extends Component {
           j = 1000;
         return i - j;
       }).map((key) => {
+        const state = this.props.state.child(key);
         return (
           <BaseEditor
-            state={this.props.state.child(key)}
-            defaults={this.props.defaults}
+            state={state}
+            defaults={this.props.defaults.child(state)}
             key={key} id={key}
             constraints={this.propertyConstraint(key)}
             value={this.state.value[key]} valueChange={this.valueChange}

@@ -39,11 +39,12 @@ class ArrayItem extends Component {
         let classes = "array-item";
         if (isDragging)
             classes += " dragging"
+        const state = this.props.state.child(this.props.id)
         return connectDragPreview(connectDropTarget(
             <div className={classes}>
                 <BaseEditor
-                    state={this.props.state.child(this.props.id)}
-                    defaults={this.props.defaults}
+                    state={state}
+                    defaults={this.props.defaults.child(state)}
                     id={this.props.id}
                     constraints={this.props.constraints}
                     value={this.props.value} valueChange={this.props.valueChange}
@@ -84,12 +85,9 @@ class ArrayEditor extends Component {
     constructor(props) {
         super(props);
 
-        let collapsed = props.state.collapsed
+        let collapsed = props.state.collapsed;
         if (collapsed === undefined) {
-            collapsed = props.defaults.collapsed;
-            if (typeof collapsed === "function")
-                collapsed = collapsed(props.state.path());
-            props.state.collapsed = !!collapsed;
+            collapsed = props.state.collapsed = props.defaults.collapsed;
         }
 
         this.state = {

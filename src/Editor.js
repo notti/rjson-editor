@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './Editor.css';
 import processSchema from './Schema.js';
 import State from './State.js';
+import Defaults from './Defaults.js';
 
 import { XCircle, CheckCircle } from 'react-feather';
 
@@ -94,7 +95,7 @@ class BaseEditor extends Component {
     const editor = (<Editor
       state={this.props.state}
       key={this.state.editorId}
-      defaults={this.props.defaults}
+      defaults={this.props.defaults.apply(constraints)}
       id={this.props.id}
       constraints={constraints}
       value={this.state.value} valueChange={this.valueChange}
@@ -235,7 +236,7 @@ class JSONEditor extends Component {
       <React.Fragment>
         <BaseEditor
           state={this.state.state}
-          defaults={this.props.defaults}
+          defaults={new Defaults(this.props.defaults, this.state.state)}
           constraints={this.pseudoschema}
           value={this.state.value} valueChange={this.valueChange}
           editModal={this.editModal}
