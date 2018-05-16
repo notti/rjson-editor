@@ -23,6 +23,9 @@ class Constraints {
             this.const = this.enum[0];
             this.enum = undefined;
         }
+        if (this.const === undefined) {
+            this.default = constraints.default;
+        }
         this.format = constraints.format
         switch (type) {
             case "array":
@@ -369,6 +372,7 @@ const resolveConstraint = {
     "enum": resolveSubset,
     "const": resolveNo,
     "format": resolveNo,
+    "default": resolveNo,
     "title": resolveB,
     "allOf": resolveConcat,
     "anyOf": resolveSubset,
