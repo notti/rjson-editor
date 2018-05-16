@@ -104,7 +104,15 @@ class PropertyDialog extends Component {
   }
 
   render() {
-    const properties = this.state.properties.map(item => (
+    const always = this.props.always;
+    const propertyConstraints = (this.props.constraints.properties || {});
+    const properties = this.state.properties.filter(prop => {
+      if (always !== true)
+        return true;
+      if (propertyConstraints[prop.id] !== undefined)
+        return false;
+      return true;
+    }).map(item => (
       <PropertyEditor
         key={item.id}
         item={item}
@@ -177,6 +185,7 @@ class PropertyButton extends Component {
           addProperty={this.props.addProperty} delProperty={this.props.delProperty}
           hasCustom={this.props.hasCustom}
           constraints={this.props.constraints}
+          always={this.props.always}
         />}
       </div>
     );
@@ -211,6 +220,7 @@ class ObjectEditor extends Component {
           addProperty={this.addProperty} delProperty={this.delProperty}
           hasCustom={this.hasCustom}
           constraints={this.props.constraints}
+          always={this.props.defaults.optionalPropertiesAlways}
         />));
     this.props.addPostcontrol("editJSON", -999, (
       <button type="button"
@@ -238,7 +248,7 @@ class ObjectEditor extends Component {
       } else {
         value = {};
         let properties = constraints.required || [];
-        if (nextProps.defaults.optionalPropertiesTrue === true) {
+        if (nextProps.defaults.optionalPropertiesTrue === true || nextProps.defaults.optionalPropertiesAlways === true) {
           properties = Object.keys(constraints.properties || {});
         }
         for (let property of properties) {
@@ -248,7 +258,10 @@ class ObjectEditor extends Component {
       nextProps.valueChange(nextProps.id, value);
     } else if (constraints.required !== undefined) {
       let changed = false;
-      for (let property of constraints.required) {
+      let required = constraints.required;
+      if (nextProps.defaults.optionalPropertiesAlways === true)
+        required = Object.keys(constraints.properties || {});
+      for (let property of required) {
         if (!value.hasOwnProperty(property)) {
           value[property] = undefined;
           changed = true;
@@ -292,6 +305,14 @@ class ObjectEditor extends Component {
       return;
     if (!(val instanceof Object && val.constructor === Object))
       return false;
+    if (this.props.defaults.optionalPropertiesAlways === true) {
+      let required = Object.keys(this.props.constraints.properties || {});
+      for (let property of required) {
+        if (!val.hasOwnProperty(property)) {
+          val[property] = undefined;
+        }
+      }
+    }
     this.props.onEdit(this.props.state.path(), val, "set")
     this.setState({
       value: val,

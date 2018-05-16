@@ -4,16 +4,36 @@ class Checkbox extends Component {
     constructor(props) {
         super(props);
 
+        this.checkbox = React.createRef();
         this.state = {
             value: props.value
         };
     }
 
+    componentDidMount() {
+        this.checkbox.current.indeterminate = this.state.value === undefined;
+    }
+
+    componentDidUpdate() {
+        this.checkbox.current.indeterminate = this.state.value === undefined;
+    }
+
     valueChange = (e) => {
-        this.setState(prevState => {
-            this.props.onEdit(this.props.state.path(), !prevState.value);
-            this.props.valueChange(this.props.id, !prevState.value);
-            return { value: !prevState.value }
+        this.setState((prevState, props) => {
+            let newState;
+            if (props.defaults.optionalPropertiesAlways === true) {
+                switch (prevState.value) {
+                    case undefined: newState = false; break;
+                    case false: newState = true; break;
+                    case true: newState = undefined; break;
+                    // no default
+                }
+            } else {
+                newState = !prevState.value;
+            }
+            props.onEdit(this.props.state.path(), newState);
+            props.valueChange(this.props.id, newState);
+            return { value: newState }
         });
     }
 
@@ -28,7 +48,7 @@ class Checkbox extends Component {
         const constraints = this.props.constraints;
         return (
             <div className="custom-control custom-checkbox">
-                <input type="checkbox" checked={this.state.value} onChange={this.valueChange} className="custom-control-input custom-control-input.checked" readOnly={constraints.const !== undefined}></input>
+                <input type="checkbox" checked={this.state.value === true} onChange={this.valueChange} className="custom-control-input" readOnly={constraints.const !== undefined} ref={this.checkbox} ></input>
                 <label className="custom-control-label" onClick={this.valueChange}></label>
             </div>
         )
@@ -47,12 +67,16 @@ class BooleanEditor extends Component {
             value = props.constraints.const;
             props.valueChange(props.id, value);
         }
+        if (typeof value !== "boolean")
+            value = undefined;
         if (value === undefined) {
-            if (props.constraints.default !== undefined)
+            if (props.constraints.default !== undefined) {
                 value = props.constraints.default;
-            else
+                props.valueChange(props.id, value);
+            } else if (props.defaults.optionalPropertiesAlways !== true) {
                 value = false;
-            props.valueChange(props.id, value);
+                props.valueChange(props.id, value);
+            }
         }
 
         this.state = {
@@ -68,6 +92,7 @@ class BooleanEditor extends Component {
                 constraints={this.props.constraints}
                 valueChange={this.valueChange}
                 state={this.props.state}
+                defaults={this.props.defaults}
                 onEdit={this.props.onEdit}
             />));
         if (typeof this.props.onConstruct === "function")
@@ -93,13 +118,16 @@ class BooleanEditor extends Component {
             value = nextProps.constraints.const;
             nextProps.valueChange(nextProps.id, value);
         }
-        if (value === undefined || typeof value !== "boolean") {
-            if (nextProps.constraints.default !== undefined)
+        if (typeof value !== "boolean")
+            value = undefined;
+        if (value === undefined) {
+            if (nextProps.constraints.default !== undefined) {
                 value = nextProps.constraints.default;
-            else {
+                nextProps.valueChange(nextProps.id, value);
+            } else if (nextProps.defaults.optionalPropertiesAlways !== true) {
                 value = false;
+                nextProps.valueChange(nextProps.id, value);
             }
-            nextProps.valueChange(nextProps.id, value);
         }
         return { value: value };
     }

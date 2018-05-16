@@ -30,6 +30,15 @@ class Defaults {
         }
         return !!this._defaults.optionalPropertiesTrue(this._state.path());
     }
+
+    get optionalPropertiesAlways() {
+        if (!(this._object || this._parentobject))
+            return false;
+        if (typeof this._defaults.optionalPropertiesAlways !== "function") {
+            return !!this._defaults.optionalPropertiesAlways;
+        }
+        return !!this._defaults.optionalPropertiesAlways(this._state.path());
+    }
 }
 
 export default Defaults;
