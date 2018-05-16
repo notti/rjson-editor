@@ -252,7 +252,7 @@ class InputEditor extends Component {
                 setValue: this.setValue.bind(this),
                 addPrecontrol: props.addPrecontrol,
                 addPostcontrol: props.addPostcontrol
-            });
+            }, props.constraints);
 
         this.state = {
             value: value,

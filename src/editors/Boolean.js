@@ -101,7 +101,7 @@ class BooleanEditor extends Component {
                 setValue: this.setValue.bind(this),
                 addPrecontrol: this.props.addPrecontrol,
                 addPostcontrol: this.props.addPostcontrol
-            });
+            }, props.constraints);
     }
 
     valueChange = (id, value) => {

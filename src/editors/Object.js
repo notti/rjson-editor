@@ -233,7 +233,7 @@ class ObjectEditor extends Component {
         getValue: this.getValue.bind(this),
         setValue: this.setValue.bind(this),
         addPrecontrol: this.props.addPrecontrol,
-        addPostcontrol: this.props.addPostcontrol});
+        addPostcontrol: this.props.addPostcontrol}, props.constraints);
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {

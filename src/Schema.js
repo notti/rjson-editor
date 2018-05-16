@@ -19,6 +19,7 @@ class Constraints {
         this.type = type;
         this.const = constraints.const
         this.enum = constraints.enum
+        this.optional = fullschema.optional;
         if (this.const === undefined && this.enum !== undefined && this.enum.length === 1) {
             this.const = this.enum[0];
             this.enum = undefined;
@@ -45,20 +46,20 @@ class Constraints {
                     this.properties = {}
                     const required = new Set(this.required || []);
                     for (let key of Object.keys(constraints.properties)) {
-                        this.properties[key] = new PseudoSchema(constraints.properties[key], fullschema.fullschema);
+                        this.properties[key] = new PseudoSchema(constraints.properties[key], fullschema.fullschema, !required.has(key));
                     }
                 }
                 if (constraints.patternProperties !== undefined) {
                     this.patternProperties = {}
                     for (let key of Object.keys(constraints.patternProperties)) {
-                        this.patternProperties[key] = new PseudoSchema(constraints.patternProperties[key], fullschema.fullschema);
+                        this.patternProperties[key] = new PseudoSchema(constraints.patternProperties[key], fullschema.fullschema, false);
                     }
                 }
                 if (constraints.additionalProperties !== undefined) {
                     if (constraints.additionalProperties === false)
                         this.additionalProperties = false
                     else
-                        this.additionalProperties = new PseudoSchema(constraints.additionalProperties, fullschema.fullschema);
+                        this.additionalProperties = new PseudoSchema(constraints.additionalProperties, fullschema.fullschema, false);
                 }
                 if (constraints.propertyNames !== undefined) {
                     fullschema.replaceRef(constraints.propertyNames);
@@ -449,7 +450,7 @@ function resolveSchema(a, b, fullschema) {
 }
 
 class PseudoSchema {
-    constructor(schema, fullschema) {
+    constructor(schema, fullschema, optional) {
         this.schema = schema;
         this.title = schema.title;
         this.fullschema = fullschema;
@@ -457,6 +458,7 @@ class PseudoSchema {
             this.fullschema = schema;
         }
         this.propertyOrder = schema.propertyOrder;
+        this.optional = optional;
     }
 
     resolveRef(ref) {
