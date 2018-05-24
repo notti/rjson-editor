@@ -99,7 +99,7 @@ class ArrayEditor extends Component {
 
         this.props.addPrecontrol("arrayChevron", -1000, <Chevron key="arrayChevron" handleHide={this.handleHide} open={this.state.open} />);
         this.props.addPostcontrol("arrayAppend", -1000, <button key="arrayAppend"
-            type="button" className="btn btn-sm btn-outline-secondary mx-2" onClick={this.handleAdd}>
+            type="button" className="btn btn-sm btn-outline-secondary ml-2" onClick={this.handleAdd}>
             <PlusSquare /> Append item
             </button>)
         if (typeof this.props.onConstruct === "function")
