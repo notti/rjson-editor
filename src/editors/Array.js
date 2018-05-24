@@ -152,6 +152,7 @@ class ArrayEditor extends Component {
     valueChange = (key, newValue) => {
         let tmp = this.state.value;
         tmp[key] = newValue;
+        this.forceUpdate();
     }
 
     handleAdd = () => {
@@ -162,7 +163,7 @@ class ArrayEditor extends Component {
         tmp.push(tmp.length === 0 ? 0 : tmp.reduce((max, val) => val > max ? val : max, this.state.keys[0]) + 1);
         this.setState({ valid: this.props.constraints.validate(this.state.value) })
         if (tmp.length === 1 && this.props.defaults.optionalPropertiesAlways === true) {
-            this.props.valueChange(this.props.id, tmp);
+            this.props.valueChange(this.props.id, this.state.value);
         }
     }
 

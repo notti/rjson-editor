@@ -343,6 +343,7 @@ class ObjectEditor extends Component {
   valueChange = (key, newValue) => {
     let tmp = this.state.value;
     tmp[key] = newValue;
+    this.forceUpdate();
   }
 
   propertyConstraint = (property) => {
