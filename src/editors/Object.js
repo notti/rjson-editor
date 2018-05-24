@@ -269,6 +269,16 @@ class ObjectEditor extends Component {
       }
       if (changed)
         nextProps.valueChange(nextProps.id, value);
+    } else if (nextProps.defaults.optionalPropertiesAlways === true) {
+      let changed = false;
+      for (let property of Object.keys(constraints.properties || {})) {
+        if (!value.hasOwnProperty(property)) {
+          value[property] = undefined;
+          changed = true;
+        }
+      }
+      if (changed)
+        nextProps.valueChange(nextProps.id, value);
     }
     return {
       value: value,
