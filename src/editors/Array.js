@@ -118,13 +118,19 @@ class ArrayEditor extends Component {
 
         let value = nextProps.value;
         const constraints = nextProps.constraints;
-        if (value === undefined || !Array.isArray(value)) {
+        if (!Array.isArray(value)) {
             if (constraints.default !== undefined) {
                 value = JSON.parse(JSON.stringify(constraints.default));
+                nextProps.valueChange(nextProps.id, value);
+            } else if (nextProps.defaults.optionalPropertiesAlways === true) {
+                if (value !== undefined) {
+                    nextProps.valueChange(nextProps.id, undefined);
+                }
+                value = [];
             } else {
                 value = [];
+                nextProps.valueChange(nextProps.id, value);
             }
-            nextProps.valueChange(nextProps.id, value);
         }
         return {
             value: value,
@@ -155,6 +161,9 @@ class ArrayEditor extends Component {
         tmp = this.state.keys;
         tmp.push(tmp.length === 0 ? 0 : tmp.reduce((max, val) => val > max ? val : max, this.state.keys[0]) + 1);
         this.setState({ valid: this.props.constraints.validate(this.state.value) })
+        if (tmp.length === 1 && this.props.defaults.optionalPropertiesAlways === true) {
+            this.props.valueChange(this.props.id, tmp);
+        }
     }
 
     handleDel = (index) => {
@@ -164,6 +173,9 @@ class ArrayEditor extends Component {
         tmp = this.state.keys;
         tmp.splice(index, 1);
         this.setState({ valid: this.props.constraints.validate(this.state.value) })
+        if (tmp.length === 0 && this.props.defaults.optionalPropertiesAlways === true) {
+            this.props.valueChange(this.props.id, undefined);
+        }
     }
 
     findKey = (key) => {
@@ -194,7 +206,7 @@ class ArrayEditor extends Component {
             return;
         if (!Array.isArray(val))
             return;
-        this.props.onEdit(this.props.state.path(), val, "set")
+        this.props.onEdit(this.props.state.path(), val || [], "set")
         this.setState({
             value: val,
             keys: val.map((value, index) => (index)),
@@ -204,7 +216,7 @@ class ArrayEditor extends Component {
     }
 
     getValue = () => {
-        return this.state.value;
+        return this.state.value || [];
     }
 
     onEdit = (b, c) => {
