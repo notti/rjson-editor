@@ -228,12 +228,15 @@ class ObjectEditor extends Component {
         className="btn btn-sm btn-outline-secondary ml-2"
         onClick={this.openModal}><Edit2 /> JSON</button>
     ))
-    if (typeof this.props.onConstruct === "function")
-      this.props.onConstruct(this.props.state.path(), {
+    if (typeof props.events.onConstruct === "function")
+      props.events.onConstruct(props.state.path(), {
         getValue: this.getValue.bind(this),
         setValue: this.setValue.bind(this),
-        addPrecontrol: this.props.addPrecontrol,
-        addPostcontrol: this.props.addPostcontrol}, props.constraints);
+        addPrecontrol: props.addPrecontrol,
+        addPostcontrol: props.addPostcontrol,
+        delPrecontrol: props.delPrecontrol,
+        delPostcontrol: props.delPostcontrol
+      }, props.constraints);
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -297,14 +300,14 @@ class ObjectEditor extends Component {
   }
 
   addProperty = (id) => {
-    this.props.onEdit(this.props.state.path(), id, "add")
+    this.props.events.onEdit(this.props.state.path(), id, "add")
     let tmp = this.state.value
     tmp[id] = undefined;
     this.setState({ invalid: this.props.constraints.validate(this.state.value) });
   }
 
   delProperty = (id) => {
-    this.props.onEdit(this.props.state.path(), id, "del")
+    this.props.events.onEdit(this.props.state.path(), id, "del")
     let tmp = this.state.value
     delete tmp[id];
     this.setState({ invalid: this.props.constraints.validate(this.state.value) });
@@ -323,7 +326,7 @@ class ObjectEditor extends Component {
         }
       }
     }
-    this.props.onEdit(this.props.state.path(), val, "set")
+    this.props.events.onEdit(this.props.state.path(), val, "set")
     this.setState({
       value: val,
       invalid: this.props.constraints.validate(val)
@@ -343,6 +346,12 @@ class ObjectEditor extends Component {
     this.props.delPrecontrol("chevron");
     this.props.delPostcontrol("properties");
     this.props.delPostcontrol("editJSON");
+    if (typeof this.props.events.onDestruct === "function")
+      this.props.events.onDestruct(this.props.state.path(), {
+        getValue: this.getValue.bind(this),
+        delPrecontrol: this.props.delPrecontrol,
+        delPostcontrol: this.props.delPostcontrol
+      }, this.props.constraints);
   }
 
   handleHide = (open) => {
@@ -395,7 +404,7 @@ class ObjectEditor extends Component {
             constraints={this.propertyConstraint(key)}
             value={this.state.value[key]} valueChange={this.valueChange}
             editModal={this.props.editModal}
-            onEdit={this.props.onEdit} onConstruct={this.props.onConstruct}
+            events={this.props.events}
           />);
       })
 

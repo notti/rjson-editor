@@ -31,7 +31,7 @@ class Checkbox extends Component {
             } else {
                 newState = !prevState.value;
             }
-            props.onEdit(this.props.state.path(), newState);
+            props.events.onEdit(this.props.state.path(), newState);
             props.valueChange(this.props.id, newState);
             return { value: newState }
         });
@@ -93,14 +93,16 @@ class BooleanEditor extends Component {
                 valueChange={this.valueChange}
                 state={this.props.state}
                 defaults={this.props.defaults}
-                onEdit={this.props.onEdit}
+                events={this.props.events}
             />));
-        if (typeof this.props.onConstruct === "function")
-            this.props.onConstruct(this.props.state.path(), {
+        if (typeof this.props.events.onConstruct === "function")
+            props.events.onConstruct(props.state.path(), {
                 getValue: this.getValue.bind(this),
                 setValue: this.setValue.bind(this),
-                addPrecontrol: this.props.addPrecontrol,
-                addPostcontrol: this.props.addPostcontrol
+                addPrecontrol: props.addPrecontrol,
+                addPostcontrol: props.addPostcontrol,
+                delPrecontrol: props.delPrecontrol,
+                delPostcontrol: props.delPostcontrol
             }, props.constraints);
     }
 
@@ -138,6 +140,12 @@ class BooleanEditor extends Component {
 
     componentWillUnmount() {
         this.props.delPrecontrol("checkbox");
+        if (typeof this.props.events.onDestruct === "function")
+            this.props.events.onDestruct(this.props.state.path(), {
+                getValue: this.getValue.bind(this),
+                delPrecontrol: this.props.delPrecontrol,
+                delPostcontrol: this.props.delPostcontrol
+            }, this.props.constraints);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -152,7 +160,7 @@ class BooleanEditor extends Component {
             return false;
         if (this.props.constraints.const !== undefined)
             return false; //not setable
-        this.props.onEdit(this.props.state.path(), val, "set")
+        this.props.events.onEdit(this.props.state.path(), val, "set")
         this.setState({
             value: val
         });

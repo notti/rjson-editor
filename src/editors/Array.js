@@ -17,7 +17,7 @@ const arrayItemSource = {
         if (!monitor.didDrop())
             props.moveItem(droppedId, originalIndex)
         else
-            props.onEdit([props.findKey(droppedId), originalIndex], "change")
+            props.events.onEdit([props.findKey(droppedId), originalIndex], "change")
     }
 }
 
@@ -50,7 +50,7 @@ class ArrayItem extends Component {
                     value={this.props.value} valueChange={this.props.valueChange}
                     short={this.props.short}
                     editModal={this.props.editModal}
-                    onEdit={this.props.onEdit} onConstruct={this.props.onConstruct}
+                    events={this.props.events}
                 />
                 <button key="arrayDelete"
                     type="button" className="btn btn-sm btn-outline-secondary mx-2 mb-3" tabIndex="-1"
@@ -102,12 +102,14 @@ class ArrayEditor extends Component {
             type="button" className="btn btn-sm btn-outline-secondary ml-2" onClick={this.handleAdd}>
             <PlusSquare /> Append item
             </button>)
-        if (typeof this.props.onConstruct === "function")
-            this.props.onConstruct(this.props.state.path(), {
+        if (typeof props.events.onConstruct === "function")
+            props.events.onConstruct(props.state.path(), {
                 getValue: this.getValue.bind(this),
                 setValue: this.setValue.bind(this),
-                addPrecontrol: this.props.addPrecontrol,
-                addPostcontrol: this.props.addPostcontrol
+                addPrecontrol: props.addPrecontrol,
+                addPostcontrol: props.addPostcontrol,
+                delPrecontrol: props.delPrecontrol,
+                delPostcontrol: props.delPostcontrol
             }, props.constraints);
     }
 
@@ -142,6 +144,12 @@ class ArrayEditor extends Component {
     componentWillUnmount() {
         this.props.delPrecontrol("arrayChevron");
         this.props.delPostcontrol("arrayAppend");
+        if (typeof this.props.events.onDestruct === "function")
+            this.props.events.onDestruct(this.props.state.path(), {
+                getValue: this.getValue.bind(this),
+                delPrecontrol: this.props.delPrecontrol,
+                delPostcontrol: this.props.delPostcontrol
+            }, this.props.constraints);
     }
 
     handleHide = (open) => {
@@ -156,7 +164,7 @@ class ArrayEditor extends Component {
     }
 
     handleAdd = () => {
-        this.props.onEdit(this.props.state.path(), undefined, "add")
+        this.props.events.onEdit(this.props.state.path(), undefined, "add")
         let tmp = this.state.value;
         tmp.push(undefined);
         tmp = this.state.keys;
@@ -168,7 +176,7 @@ class ArrayEditor extends Component {
     }
 
     handleDel = (index) => {
-        this.props.onEdit(this.props.state.path(), index, "del")
+        this.props.events.onEdit(this.props.state.path(), index, "del")
         let tmp = this.state.value;
         tmp.splice(index, 1);
         tmp = this.state.keys;
@@ -207,7 +215,7 @@ class ArrayEditor extends Component {
             return;
         if (!Array.isArray(val))
             return;
-        this.props.onEdit(this.props.state.path(), val || [], "set")
+        this.props.events.onEdit(this.props.state.path(), val || [], "set")
         this.setState({
             value: val,
             keys: val.map((value, index) => (index)),
@@ -221,7 +229,7 @@ class ArrayEditor extends Component {
     }
 
     onEdit = (b, c) => {
-        this.props.onEdit(this.props.state.path(), b, c);
+        this.props.events.onEdit(this.props.state.path(), b, c);
     }
 
     render() {
@@ -240,7 +248,7 @@ class ArrayEditor extends Component {
                 handleDel={this.handleDel}
                 short={this.props.constraints.format === "table"}
                 editModal={this.props.editModal}
-                onEdit={this.props.onEdit} onConstruct={this.props.onConstruct}
+                events={this.props.events}
             />)
         );
 

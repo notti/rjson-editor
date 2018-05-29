@@ -7,7 +7,7 @@ class SelectEditor extends Component {
         let value = e.target.value;
         if (value === "" && this.props.defaults.optionalPropertiesAlways === true)
             value = undefined;
-        this.props.onEdit(this.props.state.path(), value);
+        this.props.events.onEdit(this.props.state.path(), value);
         this.props.valueChange(this.props.id, value);
     }
 
@@ -34,7 +34,7 @@ class StringEditor extends Component {
         let value = e.target.value;
         if (value === "" && this.props.defaults.optionalPropertiesAlways === true)
             value = undefined;
-        this.props.onEdit(this.props.state.path(), value);
+        this.props.events.onEdit(this.props.state.path(), value);
         this.props.valueChange(this.props.id, value);
     }
 
@@ -79,7 +79,7 @@ class IntegerEditor extends Component {
             return false;
         let value = sanitize(textValue, this.props.constraints, this.props.defaults);
 
-        this.props.onEdit(this.props.state.path(), value);
+        this.props.events.onEdit(this.props.state.path(), value);
         this.props.valueChange(this.props.id, value);
         this.setState({ value: textValue, realValue: value })
         return true;
@@ -154,7 +154,7 @@ class NumberEditor extends Component {
         }
         let value = sanitize(textValue, this.props.constraints, this.props.defaults);
 
-        this.props.onEdit(this.props.state.path(), value);
+        this.props.events.onEdit(this.props.state.path(), value);
         this.props.valueChange(this.props.id, value);
         this.setState({ value: textValue, realValue: value })
         return true;
@@ -238,7 +238,7 @@ class InputEditor extends Component {
             value = constraints.const;
             props.valueChange(props.id, constraints.const);
             if (value !== undefined)
-                props.onEdit(props.state.path(), constraints.const, "set");
+                props.events.onEdit(props.state.path(), constraints.const, "set");
         }
         const sanitized = sanitize(value, constraints, props.defaults)
         if (sanitized !== value) {
@@ -246,18 +246,29 @@ class InputEditor extends Component {
             props.valueChange(props.id, sanitized);
         }
 
-        if (typeof this.props.onConstruct === "function")
-            this.props.onConstruct(this.props.state.path(), {
+        if (typeof props.events.onConstruct === "function")
+            props.events.onConstruct(props.state.path(), {
                 getValue: this.getValue.bind(this),
                 setValue: this.setValue.bind(this),
                 addPrecontrol: props.addPrecontrol,
-                addPostcontrol: props.addPostcontrol
+                addPostcontrol: props.addPostcontrol,
+                delPrecontrol: props.delPrecontrol,
+                delPostcontrol: props.delPostcontrol
             }, props.constraints);
 
         this.state = {
             value: value,
             valid: constraints.validate(value || "")
         }
+    }
+
+    componentWillUnmount() {
+        if (typeof this.props.events.onDestruct === "function")
+            this.props.events.onDestruct(this.props.state.path(), {
+                getValue: this.getValue.bind(this),
+                delPrecontrol: this.props.delPrecontrol,
+                delPostcontrol: this.props.delPostcontrol
+            }, this.props.constraints);
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
@@ -271,7 +282,7 @@ class InputEditor extends Component {
         if (constraints.const !== undefined && constraints.const !== value) {
             value = constraints.const;
             nextProps.valueChange(nextProps.id, constraints.const);
-            nextProps.onEdit(nextProps.state.path(), constraints.const, "set");
+            nextProps.events.onEdit(nextProps.state.path(), constraints.const, "set");
         } else {
             value = sanitize(value, constraints, nextProps.defaults);
         }
@@ -294,7 +305,7 @@ class InputEditor extends Component {
 
         const sanitized = sanitize(value, this.props.constraints, this.props.defaults);
 
-        this.props.onEdit(this.props.state.path(), sanitized, "set");
+        this.props.events.onEdit(this.props.state.path(), sanitized, "set");
         this.props.valueChange(this.props.id, sanitized);
         this.setState({
             value: sanitized,
@@ -323,7 +334,7 @@ class InputEditor extends Component {
             control = (<Control
                 id={this.props.id} value={this.state.value} valid={valid}
                 constraints={constraints}
-                onEdit={this.props.onEdit} valueChange={this.props.valueChange}
+                events={this.props.events} valueChange={this.props.valueChange}
                 defaults={this.props.defaults} state={this.props.state} />
             );
         }
