@@ -451,12 +451,13 @@ function resolveSchema(a, b, fullschema) {
 
 class PseudoSchema {
     constructor(schema, fullschema, optional) {
-        this.schema = schema;
-        this.title = schema.title;
         this.fullschema = fullschema;
         if (fullschema === undefined) {
             this.fullschema = schema;
         }
+        this.schema = schema;
+        this.replaceRef(this.schema);
+        this.title = schema.title;
         this.propertyOrder = schema.propertyOrder;
         this.optional = optional;
     }
