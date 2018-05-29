@@ -1,6 +1,6 @@
 {
   "name": "rjson-editor",
-  "version": "0.10.3",
+  "version": "0.10.4",
   "author": {
     "name": "Gernot Vormayr",
     "email": "gvormayr@gmail.com"
@@ -38,7 +38,7 @@
     "react-feather": "^1.1.0",
     "style-loader": "^0.20.3",
     "url-loader": "^1.0.1",
-    "webpack": "^4.8.3",
+    "webpack": "^4.10.0",
     "webpack-cli": "^2.1.4"
   },
   "peerDependencies": {
